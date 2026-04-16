@@ -1,0 +1,8 @@
+source,key,smiles,reason
+phase1_pubchem,pubchem_lookup,CC(NC(=O)C(C)NS(=O)(=O)c1cccc2cnccc12)C(=O)NC(CO)C(=O)NC(CCCN=C(N)N)C(=O)NC(CCCN=C(N)N)C(=O)NC(CCCN=C(N)N)C(=O)NC(CCCN=C(N)N)C(=O)NC(CCCN=C(N)N)C(=O)NC(CCCN=C(N)N)C(=O)O,pubchem_error:BadRequestError
+phase2_fpsim2,chembl27_chemreps,CN(C)c1ccc(N(C)C)cc1.F[PH](F)(F)(F)(F)F,rdkit_invalid
+phase2_fpsim2,chembl27_chemreps,CCOC(=O)c1ccc(CNCc2ccc(OCc3ccccc3)cc2)cc1.F[PH](F)(F)(F)(F)F,rdkit_invalid
+phase2_fpsim2,chembl27_chemreps,C[C@H](CCC(=O)NCCCN(CCCNC(=O)CC[C@@H](C)[C@H]1CC[C@H]2[C@H]3[C@H](C[C@H](O)[C@@]21C)[C@@]1(C)CC[C@@H](O)C[C@H]1C[C@H]3O)C(=O)c1ccc(CNCc2ccc(OCc3ccccc3)cc2)cc1)[C@H]1CC[C@H]2[C@H]3[C@H](C[C@H](O)[C@@]21C)[C@@]1(C)CC[C@@H](O)C[C@H]1C[C@H]3O.F[PH](F)(F)(F)(F)F,rdkit_invalid
+phase2_fpsim2,chembl27_chemreps,F[AsH](F)(F)(F)(F)F,rdkit_invalid
+phase2_fpsim2,chembl27_chemreps,F[PH](F)(F)(F)(F)F.N=c1ccc2c(-c3ccccc3)c3ccc(N)cc3sc-2c1,rdkit_invalid
+phase2_fpsim2,chembl27_chemreps,CCCCCCCCCCCCCCCCCCPCCCCCCCCCCCCCC.F[PH](F)(F)(F)(F)F,rdkit_invalid

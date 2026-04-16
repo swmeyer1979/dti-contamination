@@ -1,0 +1,20 @@
+{
+  "esm2": {
+    "cutoff_date": "2021-04-01",
+    "training_data": "UniRef50 2021_04",
+    "source": "Lin et al. 2023"
+  },
+  "chembert": {
+    "cutoff_date": "2020-06-01",
+    "training_data": "PubChem ~77M SMILES",
+    "source": "Chithrananda et al. 2020"
+  },
+  "molbert": {
+    "cutoff_date": "2020-11-01",
+    "training_data": "ChEMBL27",
+    "source": "Fabian et al. 2020"
+  },
+  "contamination_threshold": 0.6,
+  "contamination_threshold_note": "ECFP4 Morgan Tanimoto threshold for labeling a compound as contaminated vs ChEMBL27. Also used as sensitivity analysis base; see phase3 for 0.4/0.5/0.7 variants.",
+  "note": "Dates approximate. Sensitivity analysis should test plus-or-minus 3 months."
+}

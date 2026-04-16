@@ -1,0 +1,72 @@
+{
+  "davis": {
+    "test_pairs": 6012,
+    "test_subset_stats": {
+      "ambiguous": {
+        "deposit_date_max": null,
+        "deposit_date_min": null,
+        "pairs": 0,
+        "unique_compounds": 0,
+        "unique_scaffolds": 0
+      },
+      "clean": {
+        "deposit_date_max": null,
+        "deposit_date_min": null,
+        "pairs": 84,
+        "unique_compounds": 1,
+        "unique_scaffolds": 0
+      },
+      "contaminated": {
+        "deposit_date_max": "2024-01-01",
+        "deposit_date_min": "1995-01-01",
+        "pairs": 5928,
+        "unique_compounds": 67,
+        "unique_scaffolds": 0
+      }
+    },
+    "total_pairs": 30056,
+    "train_pairs": 24044
+  },
+  "fold_source": {
+    "davis": "deepdta_official",
+    "kiba": "deepdta_official"
+  },
+  "generated_at": "2026-04-16T14:19:01.780983+00:00",
+  "holdout": {
+    "document_year_max": 2024,
+    "document_year_min": 2022,
+    "pairs": 801,
+    "unique_compounds": 754,
+    "unique_targets": 39
+  },
+  "kiba": {
+    "test_pairs": 23651,
+    "test_subset_stats": {
+      "ambiguous": {
+        "deposit_date_max": null,
+        "deposit_date_min": null,
+        "pairs": 0,
+        "unique_compounds": 0,
+        "unique_scaffolds": 0
+      },
+      "clean": {
+        "deposit_date_max": "2022-01-01",
+        "deposit_date_min": "2009-01-01",
+        "pairs": 1056,
+        "unique_compounds": 81,
+        "unique_scaffolds": 0
+      },
+      "contaminated": {
+        "deposit_date_max": "2024-01-01",
+        "deposit_date_min": "1948-01-01",
+        "pairs": 22595,
+        "unique_compounds": 1936,
+        "unique_scaffolds": 0
+      }
+    },
+    "total_pairs": 118254,
+    "train_pairs": 94603
+  },
+  "molbert_cutoff": "2020-11-01",
+  "warnings": []
+}

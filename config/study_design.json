@@ -1,0 +1,91 @@
+{
+  "_comment": "Causal study design parameters for DTI benchmark contamination paper.",
+
+  "estimand": {
+    "name": "Average Treatment Effect of Pretraining Corpus Contamination",
+    "notation": "DiD = [r_treated_benchmark - r_treated_holdout] - [r_control_benchmark - r_control_holdout]",
+    "treated_unit": "ESM-2 + ChemBERTa MLP probe",
+    "control_unit": "DeepDTA (trained from scratch, no pretrained components)",
+    "benchmark_arm": {
+      "datasets": ["Davis (2011)", "KIBA (2014)"],
+      "contamination_source": "ChEMBL27 (MolBERT pretraining corpus, released Nov 2020)",
+      "contamination_threshold_tanimoto": 0.6
+    },
+    "holdout_arm": {
+      "source": "ChEMBL34 (released March 2024)",
+      "document_year_gte": 2022,
+      "standard_types": ["Ki", "Kd"],
+      "pchembl_min": 5.0,
+      "assay_type": "B",
+      "novelty_gate_max_tanimoto": 0.4,
+      "novelty_gate_vs": "ChEMBL27",
+      "rationale": "Compounds deposited after all three pretraining corpus cutoffs (ESM-2 Apr 2021, ChemBERTa Jun 2020, MolBERT Nov 2020), structurally novel vs the MolBERT pretraining corpus."
+    }
+  },
+
+  "pretraining_corpus_cutoffs": {
+    "ESM-2": {
+      "corpus": "UniRef50",
+      "cutoff_date": "2021-04-01",
+      "paper": "Lin et al. 2023 (ESM-2)"
+    },
+    "ChemBERTa": {
+      "corpus": "PubChem10M",
+      "cutoff_date": "2020-06-01",
+      "paper": "Chithrananda et al. 2020"
+    },
+    "MolBERT": {
+      "corpus": "ChEMBL27",
+      "cutoff_date": "2020-11-01",
+      "paper": "Fabian et al. 2020"
+    }
+  },
+
+  "identification_assumptions": {
+    "parallel_trends": {
+      "description": "DeepDTA's benchmark-vs-holdout Pearson r gap is attributable only to dataset difficulty differences, not pretraining contamination (it has none). Verified by checking that DeepDTA's gap is near zero.",
+      "falsification_test": "If DeepDTA shows a large gap, holdout difficulty is confounded — DiD is not identified."
+    },
+    "stable_unit_treatment": {
+      "description": "ESM-2 performance on one compound does not affect performance on another. Satisfied by pair-level independence in the MLP probe architecture."
+    },
+    "no_spillover": {
+      "description": "Holdout compounds are genuinely novel vs ChEMBL27 (max Tanimoto < 0.4). Spillover channel is structural: if holdout compounds were similar to training compounds, any advantage ESM-2 shows would be contamination, not a threat — it would underestimate DiD."
+    }
+  },
+
+  "statistical_analysis": {
+    "primary": {
+      "method": "DiD bootstrap",
+      "n_bootstrap": 10000,
+      "seed": 42,
+      "ci_level": 0.95,
+      "test": "one-sided (H1: DiD > 0)"
+    },
+    "secondary": {
+      "method": "Spearman correlation",
+      "x": "max_tanimoto to ChEMBL27",
+      "y": "|y_pred - y_true|",
+      "interpretation": "Negative rho = higher contamination -> smaller error -> inflated scores (continuous dose-response)"
+    },
+    "robustness": {
+      "method": "Contamination-class breakdown",
+      "contaminated_threshold": 0.6,
+      "clean_threshold": 0.6,
+      "interpretation": "ESM-2 should show larger r_contaminated vs r_clean gap than DeepDTA; supports DiD parallel trends"
+    }
+  },
+
+  "fingerprint": {
+    "type": "Morgan",
+    "radius": 2,
+    "bits": 2048,
+    "software": "FPSim2 + RDKit"
+  },
+
+  "protein_similarity": {
+    "method": "MMseqs2",
+    "sequence_identity_threshold": 0.3,
+    "coverage_threshold": 0.8
+  }
+}
