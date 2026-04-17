@@ -67,13 +67,17 @@ def _load_splits() -> tuple[pd.DataFrame, dict[str, dict[str, float]]]:
     df["affinity"] = pd.to_numeric(df["affinity"], errors="coerce")
     df = df[np.isfinite(df["affinity"].to_numpy())]
 
-    # Per-dataset z-score normalization using train-split statistics.
-    # Davis pKd (~2–12) and KIBA scores (~0–17) are on different scales; joint training
-    # without normalization causes the model to anchor predictions to one dataset's range,
-    # yielding near-zero Pearson r on the other. Normalization is affinity-scale-invariant
-    # with respect to Pearson r, so test metrics are unaffected in interpretation.
-    norm_stats: dict[str, dict[str, float]] = {}
+    # Convert Davis raw Kd (nM) → pKd = -log10(Kd_M) so that higher values denote
+    # stronger binding, matching the sign convention of KIBA scores and holdout pChEMBL.
     df = df.copy()
+    davis_mask = df["dataset"] == "davis"
+    df.loc[davis_mask, "affinity"] = -np.log10(
+        df.loc[davis_mask, "affinity"].to_numpy(dtype=float) * 1e-9
+    )
+
+    # Per-dataset z-score normalization using train-split statistics.
+    # Davis pKd (~5–11), KIBA scores (~0–17), holdout pChEMBL (~5–11) — different scales.
+    norm_stats: dict[str, dict[str, float]] = {}
     df["affinity_raw"] = df["affinity"].copy()
     for ds in df["dataset"].unique():
         train_mask = (df["dataset"] == ds) & (df["split"] == "train")

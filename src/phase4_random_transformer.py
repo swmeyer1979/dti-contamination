@@ -1,21 +1,33 @@
 """
-Frozen ESM-2 + ChemBERTa probe for DTI prediction across temporal test subsets.
+Random-transformer frozen probe for DTI prediction.
+
+Same architecture as phase4_esm2_probe but with RANDOMLY INITIALISED (not pretrained)
+ESM-2 and ChemBERTa transformers. This ablation properly tests whether transformer
+inductive bias (positional encoding, self-attention structure) accounts for benchmark
+performance, independent of any learned pretraining knowledge.
+
+Contrast with phase4_random_probe, which uses fixed Gaussian projections. That ablation
+only tests whether the MLP can extract signal from *any* fixed embedding of the right
+dimensionality. This ablation tests whether the transformer's architectural structure
+(without training) contributes over random projections.
+
+The EsmConfig and RobertaConfig are loaded from cached HuggingFace configs (small JSON
+files). No pretrained weights are downloaded.
 
 Requires:
   - phase3_temporal_split
 
 Outputs:
-  - results/esm2_probe_predictions.parquet
-  - results/esm2_probe_metrics.json
+  - results/random_transformer_predictions.parquet
+  - results/random_transformer_metrics.json
 
 Sentinels:
-  - writes checkpoints/phase4_esm2_probe.done
+  - writes checkpoints/phase4_random_transformer.done
 """
 
 from __future__ import annotations
 
 import json
-import shutil
 import traceback
 from pathlib import Path
 from typing import Any, Optional
@@ -27,48 +39,32 @@ from sklearn.metrics import mean_squared_error
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-from transformers import AutoModel, AutoTokenizer, EsmModel, EsmTokenizer
+from transformers import (
+    AutoTokenizer,
+    EsmConfig,
+    EsmModel,
+    EsmTokenizer,
+    RobertaConfig,
+    RobertaModel,
+)
 
-from utils.logging_utils import setup_logging
-from utils.metrics import bootstrap_pearson_ci, concordance_index, pearson_r
+from utils.metrics import bootstrap_pearson_ci, concordance_index
 from utils.sentinel import require_sentinel, write_sentinel
-from utils.smiles import append_invalid_smiles, validate_smiles
 from utils.status import StatusUpdater
-
+from utils.logging_utils import setup_logging
+from utils.smiles import validate_smiles, append_invalid_smiles
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-
-class PairDataset(Dataset):
-    def __init__(
-        self,
-        protein_idx: np.ndarray,
-        compound_idx: np.ndarray,
-        y: np.ndarray,
-        protein_emb: np.ndarray,
-        compound_emb: np.ndarray,
-    ):
-        self.protein_idx = protein_idx.astype(np.int64)
-        self.compound_idx = compound_idx.astype(np.int64)
-        self.y = y.astype(np.float32)
-        self.protein_emb = protein_emb.astype(np.float32)
-        self.compound_emb = compound_emb.astype(np.float32)
-
-    def __len__(self) -> int:
-        return int(self.y.shape[0])
-
-    def __getitem__(self, i: int):
-        p = self.protein_emb[int(self.protein_idx[i])]
-        c = self.compound_emb[int(self.compound_idx[i])]
-        x = np.concatenate([p, c], axis=0).astype(np.float32)
-        return torch.from_numpy(x), torch.tensor(self.y[i], dtype=torch.float32)
+# Fixed random seed for all weight initialisations — ensures reproducibility
+_RANDOM_SEED = 7
 
 
 def _select_device() -> torch.device:
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
     if torch.cuda.is_available():
         return torch.device("cuda")
-    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-        return torch.device("mps")
     return torch.device("cpu")
 
 
@@ -79,7 +75,6 @@ def _load_splits() -> tuple[pd.DataFrame, dict[str, dict[str, float]]]:
         tmp = pd.read_parquet(p)
         tmp["dataset"] = ds
         parts.append(tmp)
-    # Optional clean holdout arm (post-2021 ChEMBL34, Tanimoto < 0.4 vs ChEMBL27)
     holdout_path = PROJECT_ROOT / "data" / "splits" / "holdout_temporal_splits.parquet"
     if holdout_path.exists():
         tmp = pd.read_parquet(holdout_path)
@@ -96,25 +91,18 @@ def _load_splits() -> tuple[pd.DataFrame, dict[str, dict[str, float]]]:
 
     # Convert Davis raw Kd (nM) → pKd = -log10(Kd_M) so that higher values denote
     # stronger binding, matching the sign convention of KIBA scores and holdout pChEMBL.
-    # Without this, the model learns to predict HIGHER values for WEAKER Davis binders,
-    # which anti-correlates with holdout pChEMBL (higher = stronger binding).
     df = df.copy()
     davis_mask = df["dataset"] == "davis"
     df.loc[davis_mask, "affinity"] = -np.log10(
         df.loc[davis_mask, "affinity"].to_numpy(dtype=float) * 1e-9
     )
 
-    # Per-dataset z-score normalization using train-split statistics.
-    # Davis pKd (~5–11) and KIBA scores (~0–17) and holdout pChEMBL (~5–11) are on
-    # different scales; joint training without normalization anchors predictions to one range.
-    # Normalization is affinity-scale-invariant with respect to Pearson r.
     norm_stats: dict[str, dict[str, float]] = {}
     df["affinity_raw"] = df["affinity"].copy()
     for ds in df["dataset"].unique():
         train_mask = (df["dataset"] == ds) & (df["split"] == "train")
         train_vals = df.loc[train_mask, "affinity"].to_numpy(dtype=float)
         if len(train_vals) == 0:
-            # Holdout has no train split — compute stats from its own test pairs
             train_vals = df.loc[df["dataset"] == ds, "affinity"].to_numpy(dtype=float)
         mu = float(np.mean(train_vals))
         sigma = float(np.std(train_vals))
@@ -127,14 +115,7 @@ def _load_splits() -> tuple[pd.DataFrame, dict[str, dict[str, float]]]:
     return df, norm_stats
 
 
-def _preflight_disk(logger) -> None:
-    usage = shutil.disk_usage("/Users")
-    free = usage.free
-    logger.info("Disk free at /Users: %.2f GB", free / (1024**3))
-    assert free > 20 * 1024**3, "Need > 20 GB free on /Users for model downloads and checkpoints."
-
-
-def _embed_esm2(
+def _embed_random_esm2(
     sequences: list[str],
     out_path: Path,
     device: torch.device,
@@ -143,18 +124,22 @@ def _embed_esm2(
     phase: str,
 ) -> np.ndarray:
     if out_path.exists():
-        logger.info("Loading cached ESM2 embeddings from %s.", out_path)
+        logger.info("Loading cached random-ESM-2 embeddings from %s.", out_path)
         return np.load(out_path)
 
-    logger.info("Loading ESM-2 model/tokenizer...")
+    logger.info(
+        "Building randomly-initialised ESM-2 (same architecture, seed=%d)...", _RANDOM_SEED
+    )
+    torch.manual_seed(_RANDOM_SEED)
     tokenizer = EsmTokenizer.from_pretrained("facebook/esm2_t33_650M_UR50D")
-    model = EsmModel.from_pretrained("facebook/esm2_t33_650M_UR50D")
+    config = EsmConfig.from_pretrained("facebook/esm2_t33_650M_UR50D")
+    model = EsmModel(config)  # randomly initialised — no pretrained weights
     model.eval()
     model.to(device)
 
     embs = []
     batch_size = 8
-    for start in tqdm(range(0, len(sequences), batch_size), desc="ESM2 embeddings", unit="batch"):
+    for start in tqdm(range(0, len(sequences), batch_size), desc="random-ESM2 embeddings", unit="batch"):
         batch = sequences[start : start + batch_size]
         inputs = tokenizer(batch, return_tensors="pt", padding=True, truncation=True, max_length=1022)
         inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -164,16 +149,20 @@ def _embed_esm2(
         embs.append(cls)
         if device.type == "cuda":
             torch.cuda.empty_cache()
-        status.update(phase, "running", progress=min(0.49, 0.49 * (start + batch_size) / max(1, len(sequences))))
+        status.update(phase, "running", progress=min(0.49, 0.10 + 0.39 * (start + batch_size) / max(1, len(sequences))))
 
     arr = np.concatenate(embs, axis=0).astype(np.float32)
+    # Unit-normalise rows for numerical stability (same treatment as random_probe)
+    norms = np.linalg.norm(arr, axis=1, keepdims=True)
+    norms = np.where(norms < 1e-8, 1.0, norms)
+    arr = arr / norms
     out_path.parent.mkdir(parents=True, exist_ok=True)
     np.save(out_path, arr)
-    logger.info("Saved ESM2 embeddings to %s.", out_path)
+    logger.info("Saved random-ESM-2 embeddings to %s.", out_path)
     return arr
 
 
-def _embed_chemberta(
+def _embed_random_chemberta(
     smiles_list: list[str],
     out_path: Path,
     device: torch.device,
@@ -182,20 +171,24 @@ def _embed_chemberta(
     phase: str,
 ) -> np.ndarray:
     if out_path.exists():
-        logger.info("Loading cached ChemBERTa embeddings from %s.", out_path)
+        logger.info("Loading cached random-ChemBERTa embeddings from %s.", out_path)
         return np.load(out_path)
 
-    logger.info("Loading ChemBERTa model/tokenizer...")
+    logger.info(
+        "Building randomly-initialised ChemBERTa (same architecture, seed=%d)...", _RANDOM_SEED
+    )
+    torch.manual_seed(_RANDOM_SEED + 1)
     tokenizer = AutoTokenizer.from_pretrained("seyonec/ChemBERTa-zinc-base-v1")
-    model = AutoModel.from_pretrained("seyonec/ChemBERTa-zinc-base-v1")
+    config = RobertaConfig.from_pretrained("seyonec/ChemBERTa-zinc-base-v1")
+    model = RobertaModel(config)  # randomly initialised — no pretrained weights
     model.eval()
     model.to(device)
 
     embs = []
-    batch_size = 32
-    for start in tqdm(range(0, len(smiles_list), batch_size), desc="ChemBERTa embeddings", unit="batch"):
+    batch_size = 64
+    for start in tqdm(range(0, len(smiles_list), batch_size), desc="random-ChemBERTa embeddings", unit="batch"):
         batch = smiles_list[start : start + batch_size]
-        inputs = tokenizer(batch, return_tensors="pt", padding=True, truncation=True, max_length=128)
+        inputs = tokenizer(batch, return_tensors="pt", padding=True, truncation=True, max_length=512)
         inputs = {k: v.to(device) for k, v in inputs.items()}
         with torch.no_grad():
             outputs = model(**inputs)
@@ -206,10 +199,38 @@ def _embed_chemberta(
         status.update(phase, "running", progress=min(0.79, 0.49 + 0.30 * (start + batch_size) / max(1, len(smiles_list))))
 
     arr = np.concatenate(embs, axis=0).astype(np.float32)
+    norms = np.linalg.norm(arr, axis=1, keepdims=True)
+    norms = np.where(norms < 1e-8, 1.0, norms)
+    arr = arr / norms
     out_path.parent.mkdir(parents=True, exist_ok=True)
     np.save(out_path, arr)
-    logger.info("Saved ChemBERTa embeddings to %s.", out_path)
+    logger.info("Saved random-ChemBERTa embeddings to %s.", out_path)
     return arr
+
+
+class PairDataset(Dataset):
+    def __init__(
+        self,
+        protein_idx: np.ndarray,
+        compound_idx: np.ndarray,
+        labels: np.ndarray,
+        protein_emb: np.ndarray,
+        compound_emb: np.ndarray,
+    ):
+        self.protein_idx = protein_idx.astype(np.int64)
+        self.compound_idx = compound_idx.astype(np.int64)
+        self.labels = labels.astype(np.float32)
+        self.protein_emb = protein_emb.astype(np.float32)
+        self.compound_emb = compound_emb.astype(np.float32)
+
+    def __len__(self) -> int:
+        return len(self.labels)
+
+    def __getitem__(self, i: int):
+        p = torch.from_numpy(self.protein_emb[self.protein_idx[i]])
+        c = torch.from_numpy(self.compound_emb[self.compound_idx[i]])
+        x = torch.cat([p, c], dim=0)
+        return x, torch.tensor(self.labels[i])
 
 
 def _train_mlp(
@@ -228,6 +249,7 @@ def _train_mlp(
     y = train_df["affinity"].to_numpy(dtype=np.float32)
 
     in_dim = int(protein_emb.shape[1] + compound_emb.shape[1])
+    torch.manual_seed(_RANDOM_SEED)
     model = nn.Sequential(
         nn.Linear(in_dim, 512),
         nn.ReLU(),
@@ -301,7 +323,7 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:
 
 
 def main() -> int:
-    phase = "phase4_esm2_probe"
+    phase = "phase4_random_transformer"
     prereq = "phase3_temporal_split"
     status = StatusUpdater(PROJECT_ROOT)
     logger = setup_logging(PROJECT_ROOT, phase)
@@ -315,15 +337,12 @@ def main() -> int:
             status.update(phase, "blocked", error=str(e))
             return 0
 
-        _preflight_disk(logger)
-
         device = _select_device()
         logger.info("Using device: %s", device)
 
         df, norm_stats = _load_splits()
         logger.info("Affinity normalization stats: %s", norm_stats)
 
-        # Validate SMILES before embedding
         canon_smiles: list[Optional[str]] = []
         drop = np.zeros(len(df), dtype=bool)
         for i, smi in enumerate(df["smiles"].tolist()):
@@ -344,17 +363,24 @@ def main() -> int:
         protein_to_idx = {s: i for i, s in enumerate(sequences)}
         smiles_to_idx = {s: i for i, s in enumerate(smiles_list)}
 
-        prot_emb_path = PROJECT_ROOT / "checkpoints" / "esm2_embeddings.npy"
-        chem_emb_path = PROJECT_ROOT / "checkpoints" / "chembert_embeddings.npy"
+        prot_emb_path = PROJECT_ROOT / "checkpoints" / "random_transformer_esm2_embeddings.npy"
+        chem_emb_path = PROJECT_ROOT / "checkpoints" / "random_transformer_chemberta_embeddings.npy"
 
-        protein_emb = _embed_esm2(sequences, prot_emb_path, device=device, logger=logger, status=status, phase=phase)
-        compound_emb = _embed_chemberta(smiles_list, chem_emb_path, device=device, logger=logger, status=status, phase=phase)
+        protein_emb = _embed_random_esm2(
+            sequences, prot_emb_path, device=device, logger=logger, status=status, phase=phase
+        )
+        compound_emb = _embed_random_chemberta(
+            smiles_list, chem_emb_path, device=device, logger=logger, status=status, phase=phase
+        )
 
-        # Train on all training pairs — contamination labels are for characterization, not filtering
         train_df = df[df["split"] == "train"].copy()
         if train_df.empty:
-            raise RuntimeError("No training pairs found. Check Phase 3 split criteria.")
-        logger.info("Training pairs: %d across datasets %s", len(train_df), sorted(train_df["dataset"].unique().tolist()))
+            raise RuntimeError("No training pairs found.")
+        logger.info(
+            "Training pairs: %d across datasets %s",
+            len(train_df),
+            sorted(train_df["dataset"].unique().tolist()),
+        )
 
         mlp = _train_mlp(
             train_df,
@@ -368,9 +394,7 @@ def main() -> int:
             phase=phase,
         )
 
-        # Evaluate per dataset (Davis, KIBA, holdout) + contamination class breakdown
         test_all = df[df["split"] == "test"].copy()
-
         metrics: dict[str, Any] = {}
         pred_frames: list[pd.DataFrame] = []
 
@@ -386,7 +410,6 @@ def main() -> int:
             metrics[ds_name] = _metrics(ds_test["affinity"].to_numpy(dtype=float), preds.astype(float))
             logger.info("Dataset=%s n=%d Pearson=%.4f", ds_name, len(ds_test), metrics[ds_name]["pearson_r"])
 
-            # Per contamination class within benchmarks (for DiD heterogeneity check)
             if ds_name != "holdout":
                 for subset_name in ["contaminated", "clean"]:
                     sub = ds_test[ds_test["subset"] == subset_name]
@@ -398,12 +421,12 @@ def main() -> int:
         results_dir = PROJECT_ROOT / "results"
         results_dir.mkdir(parents=True, exist_ok=True)
         metrics["_norm_stats"] = norm_stats
-        metrics_path = results_dir / "esm2_probe_metrics.json"
+        metrics_path = results_dir / "random_transformer_metrics.json"
         metrics_path.write_text(json.dumps(metrics, indent=2, sort_keys=True))
         logger.info("Wrote %s.", metrics_path)
 
         pred_df = pd.concat(pred_frames, ignore_index=True) if pred_frames else pd.DataFrame()
-        pred_path = results_dir / "esm2_probe_predictions.parquet"
+        pred_path = results_dir / "random_transformer_predictions.parquet"
         pred_df.to_parquet(pred_path, index=False)
         logger.info("Wrote %s (%d rows).", pred_path, len(pred_df))
 

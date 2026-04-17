@@ -21,7 +21,7 @@
   urlcolor=blue!70!black,
 }
 
-\title{\textbf{Pretraining Contamination Does Not Inflate Drug-Target\\
+\title{\textbf{Pretraining Contamination Is Not Identifiable on Drug-Target\\
 Interaction Benchmarks: A Causal Analysis}}
 
 \author{
@@ -36,106 +36,116 @@ Interaction Benchmarks: A Causal Analysis}}
 \maketitle
 
 \begin{abstract}
-We test whether pretraining contamination inflates performance on the Davis and KIBA
-drug-target interaction benchmarks using a causal difference-in-differences (DiD) estimator.
-The treated model---ESM-2 + ChemBERTa, a frozen pretrained probe---is compared against two
-contamination-free controls: DeepDTA (trained from scratch) and a random-weight probe of
-identical architecture but with random Gaussian inputs.
-A holdout of 801 post-2021 ChEMBL34 pairs, gated at Tanimoto $<0.4$ to any training
-compound, provides the uncontaminated evaluation arm.
-The DiD estimate is negative across Davis (DiD$=-0.43$, 95\% CI $[-0.53, -0.34]$) and KIBA
-(DiD$=-0.46$, 95\% CI $[-0.55, -0.37]$), with one-sided $p=1.0$ against contamination
-inflation.
-We do not interpret this as clean identification of a null contamination effect: DeepDTA's
-catastrophic holdout performance ($r = -0.375$) may reflect benchmark-specific overfitting
-rather than a parallel trend, which would bias the DiD negative regardless of contamination.
-The random-weight control, which cannot overfit representations, yields a consistent negative
-DiD ($-0.300$, 95\% CI $[-0.397, -0.202]$), providing a more credible, architecture-matched
-null.
-Both controls nearly match ESM-2 on benchmarks (Davis: random $r=0.650$ vs.\ ESM-2 $0.666$;
-KIBA: both $r=0.786$), showing that pretraining contributes negligible benchmark signal
-in this setting.
-On the holdout, all three models collapse: $r = 0.017$ (ESM-2, not significant), $-0.375$
-(DeepDTA), $-0.287$ (random).
-Davis and KIBA do not measure generalisation to novel chemistry---and this, not
-contamination, is the actionable problem.
+We test whether pretraining corpus contamination inflates performance on the Davis
+and KIBA drug-target interaction benchmarks using a difference-in-differences (DiD)
+estimator.
+A frozen ESM-2 + ChemBERTa probe (treated) is compared against three
+contamination-free controls---DeepDTA (trained from scratch), a random-weight probe
+with fixed Gaussian projections, and a randomly-initialised ESM-2/ChemBERTa
+transformer of identical architecture---on Davis, KIBA, and a 801-pair clean
+holdout of post-2021 ChEMBL34 activities gated at Tanimoto $<0.4$ to training
+compounds.
+The point estimates of DiD are small and inconsistent in sign: $-0.24$ against DeepDTA,
+$+0.01$ against the fixed-projection random probe, and $+0.06$ against the random
+transformer.
+Under protein-cluster bootstrap---the correct inference procedure when pairs share
+proteins---every 95\% CI crosses zero ($p$ range 0.37--0.77).
+Under pair-level bootstrap, which the literature commonly reports but which
+assumes independent pairs, the DeepDTA comparison is significant and others are
+not; this discrepancy is a statistical artifact rather than a finding.
+We therefore cannot reject no-contamination, cannot confirm it, and report a more
+informative null than past work has.
+Two substantive findings survive proper inference: pretraining matters---a
+randomly-initialised transformer achieves only $r\approx0.52$ on Davis and KIBA
+versus $0.78$--$0.80$ for the pretrained probe---but on novel chemistry the same
+pretrained probe reaches only $r = 0.132$ on the clean holdout.
+Davis and KIBA score saturation is driven by pair structure and pretraining in roughly
+equal measure; neither translates to predictive power on compounds outside the
+training manifold.
 Code, data splits, and results: \href{https://github.com/swmeyer1979/dti-contamination}{\texttt{github.com/swmeyer1979/dti-contamination}}.
 \end{abstract}
 
 \section{Introduction}
 
-The Davis kinase inhibitor dataset \citep{davis2011comprehensive} and the KIBA binding score
-dataset \citep{tang2014making} have been the primary evaluation benchmarks for
-drug-target interaction (DTI) models since DeepDTA \citep{ozturk2018deepdta} standardised
-their train/test splits in 2018.
+The Davis kinase inhibitor dataset \citep{davis2011comprehensive} and the KIBA binding
+score dataset \citep{tang2014making} have been the primary evaluation benchmarks for
+drug-target interaction (DTI) models since DeepDTA \citep{ozturk2018deepdta}
+standardised their train/test splits in 2018.
 Models built on pretrained encoders---ESM-2 \citep{lin2023evolutionary} for proteins,
 ChemBERTa \citep{chithrananda2020chemberta} for compounds---consistently score well on
 both datasets.
-A plausible concern: ESM-2 and ChemBERTa were trained on corpora that existed well before
-Davis (2011) and KIBA (2014) entered the literature.
-If benchmark compounds or sequences are present in those corpora, the encoder's pretrained
-weights may encode structure-activity information before any task-specific training begins.
+A plausible concern: ESM-2 and ChemBERTa were trained on corpora that existed well
+before Davis (2011) and KIBA (2014) entered the literature.
+If benchmark compounds or sequences appear in those corpora, the encoder weights may
+encode structure-activity information before any task-specific training begins.
 
-This paper asks whether that contamination pathway is responsible for the high Davis/KIBA
-scores of pretrained models.
-We use a difference-in-differences (DiD) design: compare pretrained and from-scratch models
-across a contaminated benchmark arm and a clean holdout arm, and measure whether pretrained
-models gain disproportionately from the contaminated benchmarks.
-We also ablate pretraining directly with a random-weight probe that uses the same MLP
-architecture as the pretrained probe but replaces encoder outputs with random Gaussian
-projections.
+This paper asks whether that contamination pathway is identifiable, and if so,
+whether it meaningfully inflates Davis/KIBA scores.
+We use a difference-in-differences design: compare pretrained and contamination-free
+models across a contaminated benchmark arm and a clean holdout arm, with the DiD
+measuring whether the pretrained model gains disproportionately from the benchmark.
+To isolate pretraining from architecture, we include two architecture-matched controls:
+a random-weight probe that uses fixed Gaussian projections in place of encoder
+outputs, and a randomly-initialised transformer of identical architecture to ESM-2
+and ChemBERTa but without pretrained weights.
 
-The main finding: the contamination hypothesis is not supported.
-The DiD estimate is negative, and the random-weight ablation matches pretrained performance
-on both benchmarks.
-The harder finding: every model we tested---pretrained, from-scratch, and random---achieves
-near-chance performance on the clean holdout.
-The problem with Davis and KIBA is not inflated scores; it is that the scores do not measure
-generalisation.
+The central finding is a negative one: under protein-cluster bootstrap, which
+accounts for the non-independence of (protein, compound) pairs that share proteins,
+none of the DiD estimates are statistically distinguishable from zero.
+Pair-level bootstrap---the standard inference procedure for these benchmarks---
+produces narrower CIs that label the DeepDTA comparison significant, but this
+appears to be an artifact of treating 229 proteins times 100 compounds as though
+they were 23,000 independent observations.
+We therefore make no claim about whether contamination inflates these benchmarks.
+We do report two substantive findings that the analysis does identify: pretraining
+contributes materially to benchmark performance (a random transformer loses $\sim$0.3
+in Pearson $r$ versus the pretrained probe), and none of the models generalises well
+to novel chemistry (ESM-2 achieves $r = 0.132$ on the holdout).
 
 \paragraph{Contributions.}
 \begin{enumerate}
-  \item A DiD causal test for pretraining contamination in DTI evaluation, with explicit
-    discussion of where the parallel trends assumption holds and where it does not.
-  \item A clean temporal holdout of 801 post-2021 ChEMBL34 pairs with strict Tanimoto
-    novelty gating.
-  \item A random-weight ablation (fixed random projections of matching dimensionality) that
-    isolates pretraining from MLP capacity and data structure.
-  \item Empirical evidence that Davis/KIBA performance is saturated by architecture and data
-    structure, not by representation quality---at least within the kinase-dominated benchmark
-    setting studied here.
+  \item A DiD analysis of contamination in Davis/KIBA with three architecturally
+    distinct controls, evaluated under both pair-level and protein-cluster bootstrap.
+  \item An argument that cluster bootstrap is the correct inference procedure for
+    these benchmarks, and a demonstration that it changes the verdict.
+  \item Evidence that pretrained weights (not just transformer inductive bias)
+    materially contribute to benchmark scores, from a randomly-initialised ESM-2
+    ablation.
+  \item A clean holdout of 801 post-2021 ChEMBL34 pairs with strict Tanimoto
+    novelty gating, showing that benchmark performance on kinase-family targets
+    does not predict performance on structurally novel compounds.
 \end{enumerate}
 
 \section{Related Work}
 
 \paragraph{DTI benchmarks.}
-Davis \citep{davis2011comprehensive} measures Kd binding constants for 442 kinase inhibitors
-against 72 kinases.
-KIBA \citep{tang2014making} aggregates Ki, Kd, and IC50 values into a composite score
-for 2111 compounds and 229 targets.
-Both datasets consist almost entirely of human kinases, a family with high sequence identity
-across all members and dense coverage in every molecular database.
-This structural uniformity has been recognised as a limitation for assessing generalisation
-\citep{wallach2018most}, but its consequences for pretraining contamination specifically have
-not been tested causally.
+Davis \citep{davis2011comprehensive} measures $K_d$ binding constants for 442 kinase
+inhibitors against 72 kinases.
+KIBA \citep{tang2014making} aggregates $K_i$, $K_d$, and IC\textsubscript{50} values
+into a composite score for 2,111 compounds and 229 targets.
+Both datasets consist almost entirely of human kinases, a family with high sequence
+identity across members and dense coverage in every molecular database.
+This structural uniformity has been recognised as a limitation for assessing
+generalisation \citep{wallach2018most}, but its consequences for pretraining
+contamination have not previously been tested causally.
 
 \paragraph{Pretrained encoders.}
-ESM-2 \citep{lin2023evolutionary} is a 650M-parameter transformer trained on 250M UniRef50
-sequences (data cutoff April 2021) via masked language modelling.
+ESM-2 \citep{lin2023evolutionary} is a 650M-parameter transformer trained on 250M
+UniRef50 sequences (data cutoff April 2021) via masked language modelling.
 The ChemBERTa variant used here (\texttt{seyonec/ChemBERTa-zinc-base-v1},
-\citealt{chithrananda2020chemberta}) is a RoBERTa model pretrained on approximately 100K
-ZINC molecules.
-Frozen pretrained encoders consistently match or exceed from-scratch models on Davis and
-KIBA \citep{ross2022large}.
+\citealt{chithrananda2020chemberta}) is a RoBERTa model pretrained on approximately
+100K ZINC molecules.
+Frozen pretrained encoders consistently match or exceed from-scratch models on
+Davis and KIBA \citep{ross2022large}.
 
 \paragraph{Benchmark validity and contamination.}
 Data leakage has been documented in NLP \citep{brown2020language, sainz2023nlp},
-molecular property prediction \citep{wallach2018most}, and structure-based virtual screening
-\citep{chen2019hidden}.
-\citet{bender2021evaluation} and \citet{sheridan2013time} discuss temporal splitting as a
-partial mitigation.
-Temporal splits prevent training-test overlap within a study but do not prevent overlap
-with an encoder's pretraining corpus, which is the contamination pathway examined here.
+molecular property prediction \citep{wallach2018most}, and structure-based virtual
+screening \citep{chen2019hidden}.
+\citet{bender2021evaluation} and \citet{sheridan2013time} discuss temporal
+splitting as a partial mitigation, but temporal splits do not address overlap
+between benchmark compounds and an encoder's pretraining corpus, which is the
+pathway examined here.
 
 \section{Methods}
 
@@ -143,88 +153,98 @@ with an encoder's pretraining corpus, which is the contamination pathway examine
 
 \paragraph{Davis and KIBA splits.}
 We use the canonical train/test splits from \citet{ozturk2018deepdta}.
-After removing pairs with invalid SMILES, the training sets contain 27,621 (Davis) and
-25,045 (KIBA) pairs.
-Affinity values are z-score normalised per dataset using training-set statistics
-($\bar{x}_\text{Davis} \approx 7{,}400$ nM, $\bar{x}_\text{KIBA} \approx 11.7$).
+After removing pairs with invalid SMILES, the training sets contain 27,621 (Davis)
+and 25,045 (KIBA) pairs.
 
-A note on Davis affinities: standard practice converts raw Kd values in nM to
-$\text{p}K_d = -\log_{10}(K_d \times 10^{-9})$ before modelling, since binding affinity
-is approximately log-normally distributed.
-We do not apply this transformation here and instead use z-scoring, which is functionally
-similar for the regression objective but preserves the original DeepDTA experimental setup
-for comparability.
-Sensitivity to this choice is noted in Section~\ref{sec:limitations}.
+Davis $K_d$ values are stored in the canonical DeepDTA release as raw nM
+concentrations (mean 7{,}416 nM, range 0.02--10{,}000 nM).
+We convert to $\text{p}K_d = -\log_{10}(K_d \cdot 10^{-9})$ before normalisation
+so that higher values denote stronger binding.
+This is essential: without the transformation, Davis uses the opposite
+sign convention to the clean holdout's pChEMBL values, and models trained jointly
+on raw $K_d$ Davis + KIBA scores will anti-correlate with pChEMBL labels at
+inference time, producing spurious negative correlations on the holdout.
+After transformation, Davis has mean $\text{p}K_d = 5.45$ and standard deviation
+$0.89$; all three arms (Davis, KIBA, holdout) share the convention that higher
+values indicate stronger binding.
 
-\paragraph{Contamination labelling.}
-We compute pairwise ECFP4 Tanimoto similarity between benchmark compounds and the ChEMBL27
-corpus \citep{gaulton2017chembl} using FPSim2 \citep{belmonte2021fpsim2}.
-A compound is labelled \emph{contaminated} if its maximum Tanimoto to any ChEMBL27 entry
-is $\geq 0.6$; otherwise \emph{clean}.
+Affinity values are then z-score normalised per dataset using training-set
+statistics before model training.
+Pearson $r$ is invariant to this transformation.
+The clean holdout has no training split, so we z-score it using its own test
+statistics (mean $\text{pChEMBL} = 8.65$, s.d. $1.56$); the resulting predictions
+and labels share zero mean and unit variance within the holdout, matching the
+convention used for Davis and KIBA.
 
-The 0.6 threshold is conservative in the direction of over-labelling contamination:
-two ECFP4-similar compounds at this threshold share scaffold-level topology but may differ
-substantially in pendant groups.
-At this threshold, 98.6\% of Davis test compounds and 95.5\% of KIBA test compounds
-are contaminated (Table~\ref{tab:balance}).
-This high rate reflects the age and limited chemical diversity of both datasets, and limits
-the clean-subset comparison to $n=84$ (Davis) and $n=1{,}056$ (KIBA) pairs.
-We discuss the sensitivity of conclusions to threshold choice in
-Section~\ref{sec:limitations}.
+\paragraph{Compound contamination labelling.}
+We compute pairwise ECFP4 Tanimoto similarity between benchmark compounds and the
+ChEMBL27 corpus \citep{gaulton2017chembl} using FPSim2 \citep{belmonte2021fpsim2}.
+A compound is labelled \emph{contaminated} at threshold $\tau$ if its maximum
+Tanimoto to any ChEMBL27 entry is $\geq \tau$; otherwise \emph{clean}.
+Primary analysis uses $\tau = 0.6$ (scaffold-level similarity).
+We report sensitivity at $\tau \in \{0.4, 0.5, 0.6, 0.7, 0.85\}$ in
+Section~\ref{sec:threshold}.
 
-The contamination reference for ChemBERTa is ChEMBL27 by proxy: the correct corpus is the
-ZINC subset used for pretraining (\texttt{ChemBERTa-zinc-base-v1}), but that specific
-training split is not publicly available, and the full ZINC database is impractical for
-FPSim2 search at scale.
-Since ZINC and ChEMBL overlap substantially, we treat ChEMBL27 as a conservative proxy
-while acknowledging it introduces measurement error in both directions.
+The contamination reference for ChemBERTa is ChEMBL27 by proxy: the exact
+ZINC training split used to pretrain \texttt{ChemBERTa-zinc-base-v1} is not
+publicly available, and the full ZINC database is impractical for FPSim2 search at
+scale.
+ZINC and ChEMBL overlap substantially for drug-like molecules; we treat ChEMBL27 as
+a conservative proxy with measurement error in both directions.
 
 \paragraph{Protein contamination.}
 We query all benchmark sequences against UniRef50 (ESM-2 training corpus, April 2021
 cutoff) using MMseqs2 \citep{steinegger2017mmseqs2}.
-Every Davis and KIBA target achieves $\geq 90\%$ sequence identity to a UniRef50 entry.
-Protein contamination therefore cannot be stratified within these benchmarks; stratification
-requires targets outside the well-characterised human kinome.
+Every Davis and KIBA target achieves $\geq 90\%$ sequence identity to a UniRef50
+entry.
+Protein contamination therefore has zero variance in these benchmarks and is not
+stratifiable; we report this as a null finding and move on.
 
 \paragraph{Clean holdout.}
-The holdout is constructed from ChEMBL34 \citep{zdrazil2024chembl34} documents deposited
-in 2022 or later (post-cutoff for both ESM-2 and ChemBERTa).
-Compounds are retained only if max Tanimoto to any ChEMBL27 compound is $< 0.4$ (strict
-novelty gate) and the protein has a UniProt accession present in Davis or KIBA.
-The protein restriction means the holdout tests chemical-space extrapolation for known
-kinase targets, not biological-space generalisation to novel protein families.
+The holdout is constructed from ChEMBL34 \citep{zdrazil2024chembl34} documents
+deposited in 2022 or later (post-cutoff for both ESM-2 and ChemBERTa).
+Compounds are retained only if max Tanimoto to any ChEMBL27 compound is $<0.4$
+(strict novelty gate) and the protein has a UniProt accession present in Davis or
+KIBA.
+The protein restriction means the holdout tests chemical-space extrapolation for
+known kinase targets, not biological-space generalisation.
 This yields 801 pairs, 39 targets, and 754 structurally distinct compounds.
-Holdout affinity values are z-scored using the statistics of whichever benchmark dataset
-shares the most target overlap (Davis for Kd measurements, KIBA otherwise).
 
 \subsection{Models}
 
 \paragraph{ESM-2 + ChemBERTa probe (treated model).}
 ESM-2 (\texttt{facebook/esm2\_t33\_650M\_UR50D}) and ChemBERTa
 (\texttt{seyonec/ChemBERTa-zinc-base-v1}) are frozen.
-CLS embeddings (dimensions 1280 and 768) are concatenated and passed to a three-layer MLP
-($2048 \to 512 \to 256 \to 1$) with ReLU activations, 10\% dropout, Adam at lr $= 10^{-3}$,
-batch size 512, for 50 epochs.
+CLS embeddings (dimensions 1280 and 768) are concatenated and passed to a three-layer
+MLP ($2048 \to 512 \to 256 \to 1$) with ReLU activations, 10\% dropout, Adam at lr
+$=10^{-3}$, batch size 512, for 50 epochs.
 
-\paragraph{DeepDTA (primary control).}
-We re-implement \citet{ozturk2018deepdta}: character-level 1D CNNs on amino acid and SMILES
-strings, trained end-to-end for 100 epochs.
+\paragraph{DeepDTA (primary from-scratch control).}
+We re-implement \citet{ozturk2018deepdta}: character-level 1D CNNs on amino acid and
+SMILES strings, trained end-to-end for 100 epochs.
 DeepDTA has no pretrained components.
-The epoch count differs from the ESM-2 probe (50 vs.\ 100); we verified both models'
-training losses plateau before the final epoch, but formal early-stopping was not applied.
+Both models' training losses plateau well before the final epoch.
 
-\paragraph{Random-weight probe (ablation control).}
+\paragraph{Random-weight probe (fixed-projection control).}
 Identical MLP and training procedure to the ESM-2 probe, but protein and compound
-representations are \emph{fixed} unit-normalised random Gaussian vectors (seeds 0 and 1)
+representations are \emph{fixed} unit-normalised Gaussian vectors (seeds 0 and 1)
 of dimensions 1280 and 768.
-This is not equivalent to a randomly initialised ESM-2 forward pass, which would carry the
-transformer's inductive bias (positional encoding, attention structure); it is strictly
-weaker.
-The ablation tests whether the MLP can extract predictive signal from any fixed projection
-of matching dimensionality---a necessary condition for the pretraining claim, not a
-sufficient one.
+This tests whether the MLP can extract predictive signal from any fixed projection
+of appropriate dimensionality---a weaker ablation than the random transformer
+below, but useful for isolating MLP capacity from representation content.
 
-\subsection{Causal Design}
+\paragraph{Random-transformer probe (randomly-initialised architecture control).}
+The key ablation: same ESM-2 and ChemBERTa architectures---identical configs loaded
+via \texttt{EsmConfig.from\_pretrained} and \texttt{RobertaConfig.from\_pretrained}---
+but with randomly-initialised weights rather than pretrained weights.
+CLS embeddings are row-normalised before concatenation (otherwise random weights
+produce unstable embedding magnitudes).
+The MLP head is identical to the ESM-2 probe.
+This ablation tests whether transformer architectural inductive bias (attention,
+positional encoding) alone explains benchmark performance, or whether learned
+pretrained weights contribute materially.
+
+\subsection{Causal Design and Inference}
 \label{sec:did}
 
 The DiD estimator is:
@@ -233,136 +253,177 @@ The DiD estimator is:
   \bigl[r_{\text{ESM2,bench}} - r_{\text{ESM2,hold}}\bigr]
   - \bigl[r_{\text{ctrl,bench}} - r_{\text{ctrl,hold}}\bigr]
 \]
-
 where $r$ denotes Pearson correlation.
-A positive DiD indicates that ESM-2's benchmark-to-holdout performance drop is smaller than
-the control's---consistent with contamination inflating benchmark scores.
-A negative DiD indicates the opposite.
+Positive DiD: ESM-2's benchmark-to-holdout drop is smaller than the control's,
+consistent with contamination inflating benchmark scores.
+Negative DiD: the opposite.
 
 The estimator is causal under the \emph{parallel trends} assumption: the control's
-benchmark-holdout gap reflects only difficulty differences between the two arms, not
-contamination.
-This assumption is credibly satisfied by the random-weight probe (which cannot have
-pretraining contamination by construction) and more questionable for DeepDTA.
-DeepDTA's holdout correlation of $r = -0.375$ is anti-correlated with true affinities---
-a pattern consistent with overfitting the benchmark distribution such that the learned
-ranker inverts on the holdout's shifted label distribution.
-If this is the mechanism, DeepDTA's gap is inflated, which would bias the DiD estimate
-negative regardless of the truth about contamination.
-We therefore give primary evidentiary weight to the random-weight control DiD ($-0.300$)
-and treat the DeepDTA DiD ($-0.453$) as a lower bound under this threat.
+benchmark-holdout gap reflects only difficulty differences, not contamination.
+This is credible for the two random controls (which cannot have pretraining
+contamination) and weaker for DeepDTA (which can overfit benchmark-specific
+sequence patterns).
+We report DiD against all three controls and read the null against all three.
 
-Bootstrap 95\% CIs use 10,000 samples with independent pair resampling within each
-(model, arm) group.
-Compound-protein pairs are not statistically independent (proteins repeat across hundreds of
-pairs; same compounds appear with multiple targets), so pair-level resampling underestimates
-CI width.
-The reported CIs should be read as optimistic; cluster-level resampling by protein would
-widen them.
-The one-sided $p$-value reports $\Pr(\widehat{\text{DiD}} > 0)$ under the bootstrap.
+\paragraph{Bootstrap inference.}
+We report two bootstrap procedures (10{,}000 resamples each, seed 42):
 
-\subsection{Continuous Dose-Response}
+\emph{Pair-level bootstrap.}
+Each $(y_\text{true}, y_\text{pred})$ pair is treated as an independent observation;
+the full test set is resampled with replacement.
+This is the standard procedure in the DTI literature.
 
-We compute Spearman $\rho$ between each compound's max Tanimoto to ChEMBL27 and its
-absolute error $|\hat{y} - y|$, separately per model.
-Under the contamination hypothesis: $\rho < 0$ (higher similarity $\to$ smaller error).
+\emph{Protein-cluster bootstrap.}
+Proteins are resampled with replacement; all pairs for each sampled protein are
+retained together.
+Davis has 72 unique targets; KIBA has 229.
+Each protein contributes 80--100 pairs.
+Because all Pearson $r$ values in our benchmark are computed across pairs that share
+a small set of proteins, pair-level bootstrap underestimates CI width by assuming
+independence that does not exist.
+Cluster bootstrap correctly propagates the within-protein correlation of residuals.
+We treat cluster bootstrap as the primary inference procedure.
+
+\paragraph{One-sided $p$-value.}
+We report $p = \Pr(\widehat{\text{DiD}}^* \leq 0)$ over the bootstrap distribution,
+where $\widehat{\text{DiD}}^* \leq 0$ is the event of interest against the
+contamination hypothesis (DiD $> 0$).
+$p$ close to 1 therefore indicates strong evidence \emph{against} contamination
+inflation; $p$ close to 0 indicates evidence \emph{for} it; intermediate values
+reflect uncertainty.
 
 \section{Results}
 
 \subsection{Benchmark and Holdout Performance}
 
-Table~\ref{tab:performance} summarises Pearson $r$ with bootstrap 95\% CIs.
-DeepDTA outperforms the ESM-2 probe on both benchmarks (Davis: 0.709 vs.\ 0.666; KIBA:
-0.854 vs.\ 0.786).
-The random-weight probe nearly matches ESM-2 (Davis: 0.650; KIBA: 0.786).
-All three models fail on the holdout: ESM-2 achieves $r = 0.017$ (CI $[-0.051, 0.086]$,
-not significantly different from zero), DeepDTA $r = -0.375$, and the random probe
-$r = -0.287$.
-The mechanism behind the negative holdout correlations for DeepDTA and the random probe
-is discussed in Section~\ref{sec:disc_did}.
+Table~\ref{tab:performance} summarises Pearson $r$ with pair-level bootstrap 95\% CIs.
+DeepDTA scores highest on both benchmarks (Davis $r=0.854$; KIBA $r=0.873$), the
+pretrained ESM-2 probe is next ($0.776$, $0.804$), the fixed-projection random probe
+matches it ($0.813$, $0.812$), and the randomly-initialised transformer is well
+behind ($0.510$, $0.524$).
+On the holdout, only the pretrained ESM-2 probe ($r=0.132$) and the fixed-projection
+random probe ($r=0.152$) achieve positive correlations; DeepDTA ($-0.042$) and the
+random transformer ($-0.089$) do not.
+All holdout CIs are wide ($n=801$) and none is confidently large.
 
 \begin{table}[h]
 \centering
-\caption{Pearson $r$ (95\% bootstrap CI) on Davis, KIBA, and the clean holdout.
-Holdout CIs are wider due to $n=801$; ESM-2's holdout $r$ is not significant ($p=0.56$).}
+\caption{Pearson $r$ (95\% pair-level bootstrap CI) on Davis, KIBA, and the clean
+holdout. Cluster-bootstrap CIs are substantially wider on the benchmarks (typical
+width $\sim$0.2) and similar on the holdout; see Table~\ref{tab:did}.}
 \label{tab:performance}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Model} & \textbf{Davis} & \textbf{KIBA} & \textbf{Holdout} \\
 \midrule
 ESM-2 + ChemBERTa probe
-  & 0.666 [0.650, 0.683]
-  & 0.786 [0.776, 0.796]
-  & \phantom{$-$}0.017 [$-$0.051, 0.086] \\
+  & 0.776
+  & 0.804
+  & \phantom{$-$}0.132 \\
 DeepDTA
-  & 0.709 [0.685, 0.732]
-  & 0.854 [0.845, 0.862]
-  & $-$0.375 [$-$0.429, $-$0.320] \\
-Random-Weight Probe
-  & 0.650 [0.623, 0.679]
-  & 0.786 [0.776, 0.797]
-  & $-$0.287 [$-$0.350, $-$0.219] \\
+  & 0.854
+  & 0.873
+  & $-$0.042 \\
+Random-weight probe (fixed projections)
+  & 0.813
+  & 0.812
+  & \phantom{$-$}0.152 \\
+Random-weight transformer (random init)
+  & 0.510
+  & 0.524
+  & $-$0.089 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Two patterns are worth noting directly.
+First, the random transformer scores $\sim$0.27 Pearson $r$ lower than the pretrained
+ESM-2 probe on both benchmarks despite identical architecture.
+Pretrained weights contribute real signal---not just representation magnitude or
+architectural inductive bias, which the random transformer has.
+Second, the fixed-projection random probe matches the pretrained probe.
+This is consistent with the MLP learning benchmark-specific structure (per-protein
+means from repeated target appearances) that can be anchored on any fixed input
+vector; what the pretrained encoder adds is apparently closer in character to a
+better protein/compound identifier than to a generalisable representation.
 
 \subsection{DiD Causal Estimates}
 
-Table~\ref{tab:did} reports DiD estimates for both control models.
-All estimates are negative, with CIs entirely below zero.
-The primary control (DeepDTA), pooled: DiD $= -0.453$ (95\% CI $[-0.546, -0.361]$,
-$p = 1.0$).
-The ablation control (random probe), pooled: DiD $= -0.300$ (95\% CI $[-0.397, -0.202]$,
-$p = 1.0$).
-The random-probe DiD is more conservative in magnitude and less subject to the parallel
-trends concern; both are negative.
+Table~\ref{tab:did} reports DiD estimates against all three controls, with both
+pair-level and cluster-level bootstrap CIs.
 
 \begin{table}[h]
 \centering
-\caption{DiD estimates ($p$ = one-sided bootstrap $p$-value for DiD~$>0$).
-Primary evidentiary weight should be placed on the Random Probe control; see
-Section~\ref{sec:did} for the parallel trends caveat on DeepDTA.}
+\caption{DiD estimates with 95\% pair-level and protein-cluster bootstrap CIs.
+Cluster CIs are the primary inference procedure (see Section~\ref{sec:did}).
+$p$ reports $\Pr(\widehat{\text{DiD}}^* \leq 0)$ under the corresponding bootstrap,
+which is evidence \emph{against} the contamination hypothesis.}
 \label{tab:did}
-\begin{tabular}{llrrr}
+\small
+\begin{tabular}{llrcccc}
 \toprule
-\textbf{Benchmark} & \textbf{Control} & \textbf{DiD} & \textbf{95\% CI} & \textbf{$p$} \\
+ & & & \multicolumn{2}{c}{\textbf{Pair bootstrap}} & \multicolumn{2}{c}{\textbf{Cluster bootstrap}} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+\textbf{Bench} & \textbf{Control} & \textbf{DiD} & \textbf{95\% CI} & $p$ & \textbf{95\% CI} & $p$ \\
 \midrule
-Davis  & DeepDTA       & $-$0.434 & [$-$0.528, $-$0.337] & 1.000 \\
-KIBA   & DeepDTA       & $-$0.460 & [$-$0.553, $-$0.367] & 1.000 \\
-Pooled & DeepDTA       & $-$0.453 & [$-$0.546, $-$0.361] & 1.000 \\
+Davis  & DeepDTA              & $-$0.251 & [$-$0.358, $-$0.146] & 1.00 & [$-$0.758, \phantom{$-$}0.390] & 0.77 \\
+KIBA   & DeepDTA              & $-$0.243 & [$-$0.347, $-$0.139] & 1.00 & [$-$0.758, \phantom{$-$}0.396] & 0.76 \\
+Pooled & DeepDTA              & $-$0.244 & [$-$0.351, $-$0.140] & 1.00 & [$-$0.763, \phantom{$-$}0.398] & 0.77 \\
 \midrule
-Davis  & Random Probe  & $-$0.289 & [$-$0.391, $-$0.188] & 1.000 \\
-KIBA   & Random Probe  & $-$0.305 & [$-$0.404, $-$0.206] & 1.000 \\
-Pooled & Random Probe  & $-$0.300 & [$-$0.397, $-$0.202] & 1.000 \\
+Davis  & Random probe         & $-$0.017 & [$-$0.120, \phantom{$-$}0.082] & 0.64 & [$-$0.488, \phantom{$-$}0.579] & 0.54 \\
+KIBA   & Random probe         & \phantom{$-$}0.012 & [$-$0.085, \phantom{$-$}0.107] & 0.41 & [$-$0.457, \phantom{$-$}0.608] & 0.49 \\
+Pooled & Random probe         & \phantom{$-$}0.006 & [$-$0.091, \phantom{$-$}0.104] & 0.45 & [$-$0.469, \phantom{$-$}0.602] & 0.50 \\
+\midrule
+Davis  & Random transformer   & \phantom{$-$}0.047 & [$-$0.055, \phantom{$-$}0.152] & 0.18 & [$-$0.574, \phantom{$-$}0.785] & 0.38 \\
+KIBA   & Random transformer   & \phantom{$-$}0.059 & [$-$0.042, \phantom{$-$}0.158] & 0.13 & [$-$0.568, \phantom{$-$}0.791] & 0.37 \\
+Pooled & Random transformer   & \phantom{$-$}0.058 & [$-$0.039, \phantom{$-$}0.156] & 0.12 & [$-$0.568, \phantom{$-$}0.795] & 0.37 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The three controls disagree in sign.
+Against DeepDTA, DiD is strongly negative---ESM-2's benchmark-to-holdout drop is
+\emph{smaller} than DeepDTA's, the opposite of what contamination would predict.
+Against the fixed-projection random probe, DiD is approximately zero.
+Against the random transformer, DiD is weakly positive---ESM-2's gap is
+\emph{larger}, the sign consistent with contamination.
+
+Under pair-level bootstrap, the DeepDTA comparison is highly significant
+($p = 1.00$) and the others are not.
+Under cluster bootstrap, none is significant ($p$ range 0.37--0.77; every 95\% CI
+crosses zero).
+
+We interpret the cluster-bootstrap result as the primary answer: the DiD analysis
+with these data and these controls cannot distinguish the contamination hypothesis
+from its negation.
+The pair-level result should not be reported as evidence against contamination
+because its underlying independence assumption is violated in a benchmark structured
+around repeated kinase targets.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/did_estimates.png}
-\caption{DiD estimates with 95\% bootstrap CIs. Blue: primary DiD (ESM-2 vs.\ DeepDTA).
-Grey: ablation DiD (ESM-2 vs.\ random-weight probe). All estimates fall below zero;
-none support contamination inflation.}
+\caption{DiD estimates with 95\% cluster bootstrap CIs across three architecturally
+distinct controls. All CIs cross zero.}
 \label{fig:did}
 \end{figure}
 
-\subsection{Contaminated vs.\ Clean Subsets}
+\subsection{Contaminated vs.\ Clean Compound Subsets}
 
-Table~\ref{tab:breakdown} stratifies Pearson $r$ by contamination class.
-All three models show a small positive gap (contaminated $>$ clean), but the random probe's
-gap is near zero ($\Delta \approx 0$), consistent with no pretraining memory.
-ESM-2's gap ($\Delta \approx +0.05$) is not larger than DeepDTA's---a model without
-pretraining.
-Both patterns are consistent with contaminated compounds being intrinsically easier to
-predict due to training-set analogue density, rather than encoder memorisation.
-The Davis clean subset ($n=84$) is too small for reliable inference; we focus on KIBA
-($n=1{,}056$) for this comparison.
+Table~\ref{tab:breakdown} stratifies Pearson $r$ by contamination class at the
+primary threshold $\tau = 0.6$.
+All four models show a small positive gap (contaminated $>$ clean), including the
+two random controls that cannot have pretraining memorisation.
+The most parsimonious explanation is intrinsic difficulty: compounds structurally
+closer to the training set are easier to predict regardless of pretraining.
+ESM-2's gap ($\Delta = -0.001$ Davis, $+0.054$ KIBA) is not larger than the random
+probe's ($-0.007$, $+0.034$) or DeepDTA's ($+0.057$, $+0.055$).
 
 \begin{table}[h]
 \centering
-\caption{Pearson $r$ on contaminated (Tanimoto $\geq 0.6$) vs.\ clean ($< 0.6$) subsets.
-Davis clean $n=84$ (insufficient for reliable inference); KIBA clean $n=1{,}056$.}
+\caption{Pearson $r$ on contaminated (Tanimoto $\geq 0.6$) vs.\ clean ($<0.6$) subsets
+at the primary threshold. Davis clean $n=84$ (insufficient for reliable inference);
+KIBA clean $n=1{,}056$.}
 \label{tab:breakdown}
 \begin{tabular}{lcccccc}
 \toprule
@@ -370,243 +431,227 @@ Davis clean $n=84$ (insufficient for reliable inference); KIBA clean $n=1{,}056$
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 \textbf{Model} & \textbf{Contam.} & \textbf{Clean} & $\Delta$ & \textbf{Contam.} & \textbf{Clean} & $\Delta$ \\
 \midrule
-ESM-2 probe  & 0.667 & 0.615 & $+$0.052 & 0.788 & 0.734 & $+$0.054 \\
-DeepDTA      & 0.710 & 0.631 & $+$0.079 & 0.855 & 0.823 & $+$0.032 \\
-Random Probe & 0.650 & 0.655 & $-$0.005 & 0.787 & 0.779 & $+$0.008 \\
+ESM-2 + ChemBERTa & 0.777 & 0.778 & $-$0.001 & 0.805 & 0.751 & $+$0.054 \\
+DeepDTA           & 0.854 & 0.798 & $+$0.057 & 0.874 & 0.819 & $+$0.055 \\
+Random probe      & 0.813 & 0.819 & $-$0.007 & 0.813 & 0.778 & $+$0.034 \\
+Random transformer& 0.510 & 0.366 & $+$0.144 & 0.524 & 0.505 & $+$0.018 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Threshold Sensitivity}
+\label{sec:threshold}
+
+Table~\ref{tab:threshold} reports KIBA clean-subset Pearson $r$ at contamination
+thresholds $\tau \in \{0.4, 0.5, 0.6, 0.7, 0.85\}$.
+(Davis clean $n$ is too small to be reliable at $\tau \leq 0.6$.)
+As $\tau$ increases the clean subset grows (from $n=170$ at $\tau=0.4$ to $n=2{,}201$
+at $\tau=0.85$) because more compounds are reclassified as clean.
+The ESM-2 clean-vs-contaminated gap $\Delta$ varies from $+0.19$ (small clean $n$,
+high variance) down to $+0.02$ at $\tau=0.85$.
+The random probe's gap tracks ESM-2's closely across all thresholds, which is the
+pattern expected under no pretraining-specific contamination effect.
+
+\begin{table}[h]
+\centering
+\caption{KIBA contaminated-clean gap at varying Tanimoto thresholds. $\Delta$ is
+$r_\text{contam} - r_\text{clean}$ for each model. ESM-2 and the random probe track
+each other at every threshold, consistent with intrinsic difficulty rather than
+pretraining memorisation.}
+\label{tab:threshold}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Threshold} & \textbf{$n$ clean} & \textbf{ESM-2} $\Delta$ & \textbf{DeepDTA} $\Delta$ & \textbf{Rand.\ probe} $\Delta$ & \textbf{Rand.\ transf.} $\Delta$ \\
+\midrule
+0.40 & \phantom{0,}170   & $+$0.190 & $+$0.094 & $+$0.131 & $+$0.134 \\
+0.50 & \phantom{0,}622   & $+$0.082 & $+$0.088 & $+$0.074 & $+$0.091 \\
+0.60 & 1{,}056 & $+$0.054 & $+$0.055 & $+$0.034 & $+$0.018 \\
+0.70 & 1{,}544 & $+$0.039 & $+$0.044 & $+$0.025 & $+$0.040 \\
+0.85 & 2{,}201 & $+$0.023 & $+$0.018 & $+$0.001 & $+$0.051 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The contaminated-clean gap shrinks with $\tau$ in a pattern consistent for all
+four models.
+If ESM-2 were memorising contaminated compounds specifically, its $\Delta$ should
+diverge from the controls' as $\tau$ grows (stricter similarity criteria isolating
+true memorisation).
+It does not.
+
+\subsection{Continuous Dose-Response}
+
+Spearman $\rho$ between compound max Tanimoto to ChEMBL27 and absolute prediction
+error is near zero for all four models: $|\rho| < 0.02$ and, where significant,
+inconsistent in sign across models.
+This analysis mirrors the threshold sensitivity conclusion: there is no
+dose-response in the direction contamination would predict.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/contamination_breakdown.png}
-\caption{Pearson $r$ by contamination class per model and benchmark.}
+\caption{Per-benchmark Pearson $r$ stratified by contamination class ($\tau = 0.6$).}
 \label{fig:breakdown}
 \end{figure}
-
-\subsection{Continuous Dose-Response}
-
-Table~\ref{tab:spearman} reports Spearman $\rho$ between Tanimoto similarity and prediction
-error.
-All three models show $|\rho| < 0.02$.
-ESM-2's $\rho = +0.009$ ($p = 0.13$) is not significant and slightly positive---the
-opposite direction from contamination inflation.
-DeepDTA shows $\rho = -0.018$ ($p = 0.002$), statistically significant but small in
-magnitude; the most parsimonious explanation is training-set analogue density reducing
-prediction difficulty for all model types, not pretraining contamination specifically.
-
-\begin{table}[h]
-\centering
-\caption{Spearman $\rho$ (max Tanimoto vs.\ $|\hat{y} - y|$). Negative $\rho$ would
-support contamination; all values are near zero.}
-\label{tab:spearman}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Model} & $\boldsymbol{\rho}$ & $\boldsymbol{p}$ & $\boldsymbol{n}$ \\
-\midrule
-ESM-2 + ChemBERTa & $+$0.009 & 0.133 & 29,663 \\
-DeepDTA           & $-$0.018 & 0.002 & 29,663 \\
-Random Probe      & $-$0.006 & 0.269 & 29,663 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/tanimoto_error_scatter.png}
-\caption{Tanimoto similarity vs.\ absolute prediction error per model.
-Near-flat trends are inconsistent with contamination-driven performance.}
+\caption{Tanimoto similarity vs.\ absolute prediction error per model. Near-flat
+trends across all four models.}
 \label{fig:tanimoto}
 \end{figure}
 
-\begin{table}[h]
-\centering
-\caption{Contamination class balance in the test sets.}
-\label{tab:balance}
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Dataset} & \textbf{Total $n$} & \textbf{Contaminated} & \textbf{Clean} & \textbf{\% Contam.} \\
-\midrule
-Davis & 6,012 & 5,928 & 84  & 98.6\% \\
-KIBA  & 23,651 & 22,595 & 1,056 & 95.5\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Protein Contamination}
-
-Every Davis and KIBA target achieves $\geq 90\%$ sequence identity to a UniRef50 entry via
-MMseqs2.
-Stratification by protein contamination class is not possible: there is no variance.
-Davis and KIBA consist exclusively of well-characterised human kinases, all present in every
-version of UniRef50.
-Protein-level contamination effects from ESM-2 pretraining cannot be tested with
-kinase-only benchmarks; this requires a benchmark spanning diverse protein families.
-
 \section{Discussion}
 
-\subsection{Interpreting the Negative DiD}
-\label{sec:disc_did}
+\subsection{What the DiD Analysis Does and Does Not Establish}
 
-A negative DiD means ESM-2's benchmark-holdout drop is \emph{smaller} than the control's
-drop, not larger.
-In absolute terms: ESM-2's within-model gap is 0.744 Pearson $r$ units (benchmark 0.761,
-holdout 0.017); the random probe's gap is 1.048 units (benchmark 0.761, holdout $-0.287$).
-ESM-2 does not benefit disproportionately from the contaminated benchmark.
+The central DiD result is that we cannot distinguish contamination from
+no-contamination under cluster bootstrap, and we can under pair bootstrap only
+because pair bootstrap is wrong for this data structure.
+Davis has 72 proteins each appearing in $\sim$85 pairs; KIBA has 229 proteins
+each appearing in $\sim$103 pairs; the holdout has 39 proteins each appearing in
+$\sim$20 pairs.
+Pair-level resampling treats these as independent and obtains CIs on the order of
+$\pm$0.10 around a DiD point estimate of $-0.25$.
+Cluster bootstrap correctly recognises the small number of distinct proteins and
+returns CIs on the order of $\pm$0.55.
+The apparent precision of the pair-level estimate is mostly artefactual.
 
-We identify three distinct mechanisms consistent with a negative DiD, and they are not
-mutually exclusive:
-\begin{enumerate}
-  \item \textbf{No contamination effect}: pretraining memorisation of Davis/KIBA compounds
-    contributes no measurable lift on benchmark scores.
-  \item \textbf{Better generalisation}: frozen pretrained representations generalise to the
-    holdout's novel compounds more effectively than purely task-trained features.
-    ESM-2's $r = 0.017$ vs.\ random probe's $r = -0.287$ is consistent with this, though
-    neither is significantly positive; we do not claim ESM-2 generalises well.
-  \item \textbf{Control overfitting}: DeepDTA learns benchmark-specific sequence patterns
-    that actively anti-correlate on the holdout's shifted label distribution, inflating the
-    control gap and biasing DiD negative.
-\end{enumerate}
+This does not mean contamination has no effect.
+It means this design, with these controls on these benchmarks, cannot identify
+such an effect if one exists within $\pm$0.5 Pearson $r$ of zero.
+A DiD analysis capable of detecting a smaller effect would need either many more
+distinct proteins (breaking the human-kinome homogeneity of Davis/KIBA), better
+instrumental variation (e.g., benchmarks stratified by encoder cutoff date), or
+far larger clean-holdout $n$.
 
-Mechanism (3) is the primary threat to the parallel trends assumption for the DeepDTA
-control.
-The random-probe control reduces this threat: because it uses only fixed random projections
-as input, it cannot overfit sequence-level benchmark patterns.
-The consistent negative DiD for the random probe ($-0.300$) supports mechanism (1) over (3)
-as the dominant explanation, though the holdout's negative $r$ for the random probe
-($-0.287$) still requires explanation.
-The most likely cause is z-score misalignment: the holdout's affinity distribution (mixed
-Kd/Ki/IC50 from ChEMBL34) may differ from the training z-score statistics, shifting the
-predicted rank ordering relative to true affinities.
-This is a holdout construction issue, not a model failure, and affects all three models
-symmetrically---consistent with all negative holdout correlations being negative and similar
-in magnitude.
+\subsection{Pretraining Contributes Real Signal; Contamination May or May Not}
 
-\subsection{What the Random Probe Ablation Establishes}
+The random-transformer result is the strongest positive finding in this paper.
+A transformer with identical architecture to the pretrained ESM-2/ChemBERTa but
+with random weights achieves $r \approx 0.52$ on both benchmarks versus $r \approx
+0.79$ for the pretrained version.
+A gap of $\Delta r \approx 0.27$ from pretraining alone is not small.
+This falsifies the strongest form of our prior work's framing, which suggested that
+benchmark performance is saturated by architecture and data structure and that
+pretraining contributes negligibly.
+It does not.
 
-The near-identical benchmark performance of the random-weight probe (KIBA $r = 0.786$) and
-ESM-2 (KIBA $r = 0.786$) has a precise interpretation and a precise limit.
+What the random-transformer result does not do is tell us whether the pretraining
+benefit comes from memorisation of benchmark compounds specifically, from learning
+generally useful representations of kinase-binding chemistry, or from some
+combination.
+The DiD analysis was intended to answer that question and does not answer it
+conclusively.
 
-What it establishes: benchmark performance on Davis and KIBA is saturated by the MLP's
-capacity to learn from fixed representations of appropriate dimensionality.
-In a dataset of $\sim$25K pairs drawn from 229 targets and 2111 compounds---most pairs
-sharing proteins with other pairs---a 512-neuron MLP can interpolate from almost any
-2048-dimensional input, random or otherwise.
-The signal comes from the pair structure, not the representation quality.
+\subsection{The Holdout Is the Binding Constraint}
 
-What it does not establish: that pretraining is useless in general, or that a randomly
-initialised ESM-2 transformer would perform the same.
-A randomly initialised ESM-2 would carry the transformer's inductive bias (positional
-encoding, self-attention structure) and would not be equivalent to random Gaussian
-projections.
-Our ablation is weaker than that: it tests the minimal claim that benchmark performance
-does not require learned representations.
-In this kinase-dominated setting, it does not.
+ESM-2 + ChemBERTa achieves $r = 0.132$ on the clean holdout: a real but modest
+positive correlation.
+DeepDTA achieves $r = -0.042$, statistically indistinguishable from zero.
+For context, the fixed-projection random probe achieves $r = 0.152$, which
+outperforms ESM-2; this is consistent with the random probe's predictions
+effectively encoding per-protein means (the fixed Gaussian vector for each
+kinase is a stable identifier), and the holdout reusing those 39 kinases.
 
-\subsection{The Generalisation Gap}
+The holdout is harder than the benchmarks in a way that penalises all learnt
+structure except per-target mean affinity.
+A model that achieves $r = 0.85$ on KIBA and $r = 0.15$ on novel compounds for
+the same 39 targets does not have an identification problem with contamination;
+it has a representation problem.
+Contamination, if present, is a minor correction to a scoring rule that does not
+predict prospective activity.
 
-All three models achieve near-zero or negative Pearson $r$ on the holdout.
-ESM-2's $r = 0.017$ (95\% CI $[-0.051, 0.086]$) is not statistically different from zero.
-The holdout contains 801 real measurements from ChEMBL34, gated at Tanimoto $< 0.4$;
-it tests chemical-space extrapolation for known kinase targets.
+\subsection{Where Does This Leave Davis and KIBA?}
 
-This is not a design that simulates most drug discovery scenarios---lead optimisation
-operates in the 0.5--0.9 Tanimoto range.
-It is, however, a fair test of whether high benchmark scores translate to any predictive
-ability on structurally distinct compounds, and they do not.
-A model achieving $r = 0.786$ on KIBA and $r = 0.017$ on novel compounds in the same target
-space provides limited assurance of prospective utility.
-The contamination hypothesis, if true, would have offered a corrective path: remove the
-contaminated compounds and performance drops.
-That path is closed.
-The generalisation gap is not an artifact of contamination to be corrected; it reflects what
-these benchmarks are, and what they are does not include a hard test of novel chemistry.
+Davis and KIBA are not being invalidated by this analysis.
+They remain reproducible, standardised, and useful for comparative model
+development.
+What they cannot support is a claim that high scores indicate prospective
+utility on novel chemistry, even within the same target family.
+Any such claim requires a clean-holdout evaluation with sufficient novel $n$ to
+support a meaningful correlation, and a bootstrap procedure that recognises
+the correlated-pair structure of DTI test sets.
 
 \section{Limitations}
 \label{sec:limitations}
 
-\paragraph{Parallel trends.}
-As discussed in Section~\ref{sec:disc_did}, DeepDTA's parallel trends assumption is
-questionable.
-The random-probe control partially mitigates this, but the anti-correlated holdout
-performance across all models suggests a normalization or distributional shift issue that
-warrants further investigation.
+\paragraph{Limited power to detect small contamination effects.}
+Cluster bootstrap CIs span $\pm$0.55 around the DiD point estimates.
+An effect of $0.05$--$0.10$---the magnitude of the clean-contaminated gap
+at $\tau = 0.6$---is not distinguishable from zero under this procedure.
+We cannot rule out contamination at that magnitude.
 
-\paragraph{Tanimoto threshold sensitivity.}
-We use 0.6 as the contamination threshold, which is scaffold-level similarity in ECFP4
-space.
-At tighter thresholds (e.g., 0.85, typically used to identify essentially identical
-compounds in virtual screening), contamination rates would drop substantially and the
-clean-subset comparison would gain statistical power.
-We did not run a full sensitivity analysis; results at alternative thresholds should be
-considered before treating our contamination labels as definitive.
+\paragraph{Parallel trends for DeepDTA.}
+DeepDTA achieves $r = -0.042$ on the holdout, which is not anti-correlated
+(unlike in an earlier version of this analysis before the $K_d \to \text{p}K_d$
+transformation was applied), but the benchmark-holdout gap is still the largest
+among all controls.
+If DeepDTA is overfitting benchmark-specific patterns beyond what a contamination-free
+control should, the DeepDTA DiD is biased negative.
+The two random controls, which cannot overfit sequence patterns, produce DiD near
+zero; this is consistent with but does not prove that DeepDTA's negative DiD
+reflects control misspecification rather than absence of contamination.
 
-\paragraph{Davis affinity scale.}
-We z-score raw Kd values in nM rather than converting to pKd.
-Log transformation is standard because Kd is log-normally distributed and because a
-10-fold potency difference (1 nM vs.\ 10 nM) compresses to $\sim$0.3 SD units in the
-nM scale.
-Results may differ under pKd transformation; we preserve the DeepDTA experimental setup
-for direct comparability.
+\paragraph{Random-transformer limitations.}
+Randomly-initialised ESM-2 produces embedding magnitudes that differ substantially
+from pretrained ESM-2; we row-normalise to mitigate but not eliminate this.
+The random transformer's weak benchmark performance ($r \approx 0.52$) is
+consistent with the transformer's inductive bias being useful but insufficient
+without training.
+We do not claim the gap between random and pretrained is a measurement of
+pretraining's causal contribution to \emph{contamination}; it is a measurement
+of pretraining's causal contribution to benchmark performance overall.
 
-\paragraph{Bootstrap independence.}
-Pair-level bootstrap treats compound-protein pairs as independent.
-They are not: 39 proteins each appear in hundreds of pairs, and many compounds appear with
-multiple targets.
-Cluster bootstrap by protein would widen CIs and is recommended for future work.
-Given that all DiD estimates are $>0.2$ units below zero and CIs are entirely negative
-even under pair bootstrap, this does not change the directional conclusions.
+\paragraph{Contamination reference is a proxy.}
+The ChemBERTa variant used was pretrained on a ZINC subset, not ChEMBL27.
+The exact pretraining split is not public and the full ZINC database is
+impractical for FPSim2 search.
+ChEMBL27 overlaps substantially with ZINC but introduces measurement error
+(false positives and false negatives) in contamination labels.
 
-\paragraph{Corpus mismatch for ChemBERTa.}
-The correct contamination reference for \texttt{ChemBERTa-zinc-base-v1} is the specific
-ZINC training split, not ChEMBL27.
-That split is not publicly available.
-ChEMBL27 and ZINC overlap substantially for drug-like molecules, but the proxy introduces
-false positives (ChEMBL compounds with no ZINC analog) and false negatives (ZINC compounds
-not in ChEMBL).
+\paragraph{Threshold sensitivity does not resolve threshold choice.}
+Results are qualitatively similar across $\tau \in [0.5, 0.85]$, but the absolute
+size of the contaminated-clean gap varies by threshold.
+The null conclusion holds at every threshold; any positive conclusion at a
+specific threshold would need to explain why that threshold is privileged.
+
+\paragraph{Protein contamination is unstratifiable.}
+Davis/KIBA are $\geq 90\%$ UniRef50 identity for every target.
+Any protein-contamination effect is absorbed into the (untestable) base rate;
+this paper cannot speak to protein-level contamination at all.
 
 \paragraph{Holdout scope.}
-The holdout tests chemical-space extrapolation only: proteins are restricted to the same
-39 kinase targets present in Davis and KIBA.
-Biological-space generalisation (novel protein families, novel target classes) is not
-tested and would require a fundamentally different benchmark construction.
+The holdout restricts to the 39 kinase targets present in Davis/KIBA.
+Generalisation to novel protein families is a different question and would
+require a different benchmark.
 
-\paragraph{Random probe ablation scope.}
-Fixed random Gaussian projections are not equivalent to a randomly initialised transformer.
-The ablation establishes that benchmark performance does not require learned representations
-at this dimensionality and dataset scale.
-It does not establish that transformer-specific inductive bias plays no role.
-
-\paragraph{Epoch asymmetry.}
-The ESM-2 probe trains for 50 epochs and DeepDTA for 100.
-Both training losses plateau before the final epoch; a formal convergence-based stopping
-criterion was not applied.
-This asymmetry does not affect the random-probe control, which uses the same hyperparameters
-as the ESM-2 probe.
+\paragraph{Bootstrap seed dependence.}
+Cluster CIs with 10{,}000 resamples have residual Monte Carlo variation on the
+order of $\pm$0.01 in each endpoint.
+Conclusions are robust to this, but individual CI endpoints should not be
+over-interpreted to three decimal places.
 
 \section{Conclusion}
 
-Davis and KIBA are not being inflated by pretraining contamination.
-The DiD estimate is negative across both datasets and both control models, with the more
-credible random-weight control showing DiD $= -0.300$ (95\% CI $[-0.397, -0.202]$,
-$p = 1.0$ against contamination inflation).
-A random-weight probe---no learned representations, no pretraining---matches ESM-2 on
-benchmark performance.
-The benchmark structure and MLP capacity account for the scores; the encoder representations
-do not.
+Under proper inference, the DiD analysis is a double null: we cannot conclude
+contamination inflates Davis and KIBA, and we cannot conclude it does not.
+The design identifies an effect that would have to be large ($|\text{DiD}| > 0.5$)
+for this data structure to detect, and no effect of that size is present.
+Whether a smaller effect exists is beyond what these benchmarks can answer.
 
-The harder finding is that none of this matters for the real problem.
-Every model collapses on the clean holdout.
-Davis and KIBA do not test generalisation to novel chemistry, and improving scores on them
-through better representations, better training procedures, or contamination correction will
-not close the gap that matters.
+Three findings do survive proper inference:
+\begin{itemize}
+  \item Pretraining contributes materially to benchmark performance: a randomly-initialised transformer drops $r$ by $\sim$0.27 relative to pretrained on both benchmarks.
+  \item Davis and KIBA performance does not translate to novel chemistry: the best holdout Pearson $r$ across all models is $0.152$.
+  \item Pair-level bootstrap CIs on DTI benchmarks are systematically too narrow. The literature convention of reporting them without acknowledging the protein-clustered structure of the data inflates apparent significance.
+\end{itemize}
 
-We stop short of recommending that Davis and KIBA be retired.
-They remain reproducible, standardised, and computationally accessible.
-What they should not be is the primary evidence that a DTI model is ready for prospective
-use.
-Prospective tests on structurally novel compounds, ideally across targets outside the human
-kinome, are required before any DTI model can make that claim.
+The actionable recommendation is narrow and specific: DTI papers comparing
+pretrained and from-scratch models should report cluster-bootstrap CIs by default.
+Whether this changes published conclusions in any specific case is an empirical
+question the community should be able to answer.
 
 \section*{Reproducibility}
 
@@ -617,7 +662,6 @@ All code, data splits, and result files are at:
 The full pipeline re-runs with \texttt{bash run\_pipeline\_revised.sh}.
 Pretrained encoder weights download automatically from HuggingFace.
 Data splits and contamination labels are in the repository.
-The processed holdout parquet is included directly.
 
 \section*{Acknowledgements}
 

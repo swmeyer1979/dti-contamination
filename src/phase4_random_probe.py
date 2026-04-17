@@ -103,8 +103,15 @@ def _load_splits() -> tuple[pd.DataFrame, dict[str, dict[str, float]]]:
     df["affinity"] = pd.to_numeric(df["affinity"], errors="coerce")
     df = df[np.isfinite(df["affinity"].to_numpy())]
 
-    norm_stats: dict[str, dict[str, float]] = {}
+    # Convert Davis raw Kd (nM) → pKd = -log10(Kd_M) so that higher values denote
+    # stronger binding, matching the sign convention of KIBA scores and holdout pChEMBL.
     df = df.copy()
+    davis_mask = df["dataset"] == "davis"
+    df.loc[davis_mask, "affinity"] = -np.log10(
+        df.loc[davis_mask, "affinity"].to_numpy(dtype=float) * 1e-9
+    )
+
+    norm_stats: dict[str, dict[str, float]] = {}
     df["affinity_raw"] = df["affinity"].copy()
     for ds in df["dataset"].unique():
         train_mask = (df["dataset"] == ds) & (df["split"] == "train")

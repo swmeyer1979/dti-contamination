@@ -45,7 +45,7 @@ from __future__ import annotations
 import json
 import traceback
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import matplotlib
 matplotlib.use("Agg")
@@ -103,6 +103,7 @@ def _load_predictions(results_dir: Path, logger) -> pd.DataFrame:
     }
     optional_models = {
         "random_probe": results_dir / "random_probe_predictions.parquet",
+        "random_transformer": results_dir / "random_transformer_predictions.parquet",
     }
     spec = {**required_models}
     for model_name, path in optional_models.items():
@@ -111,7 +112,7 @@ def _load_predictions(results_dir: Path, logger) -> pd.DataFrame:
             logger.info("Optional model %s found — including in all analyses.", model_name)
         else:
             logger.info(
-                "Optional model %s not found (%s) — run phase4_random_probe.py to include architecture-matched null.",
+                "Optional model %s not found (%s).",
                 model_name, path,
             )
     for model_name, path in spec.items():
@@ -234,19 +235,56 @@ def _did_estimator(
         return {"stats": {}, "distributions": {}, "skipped": True, "reason": "no_holdout_arm"}
 
     # Primary DiD: ESM-2 (treated, pretrained) vs DeepDTA (control, from-scratch)
-    # Secondary DiD: ESM-2 vs random_probe (same architecture, no pretraining) — isolates
-    #   pretraining benefit from architecture advantage. Only run if random_probe present.
+    # Secondary DiDs: ESM-2 vs random_probe (fixed Gaussian projections) and
+    #   ESM-2 vs random_transformer (randomly-initialised ESM-2/ChemBERTa architecture).
     model_pairs = [("esm2_probe", "deepdta")]
-    if "random_probe" in preds["model"].values:
-        model_pairs.append(("esm2_probe", "random_probe"))
+    for rnd_ctrl in ("random_probe", "random_transformer"):
+        if rnd_ctrl in preds["model"].values:
+            model_pairs.append(("esm2_probe", rnd_ctrl))
 
-    treated_model = "esm2_probe"
-    control_model = "deepdta"
     benchmarks = sorted(ds for ds in preds["dataset"].unique() if ds != "holdout")
     eval_groups = benchmarks + ["pooled"]
 
     results: dict[str, Any] = {}
     distributions: dict[str, list[float]] = {}
+
+    def _cluster_boot_did(arms_data, proteins_data, n, rng_inner):
+        """Protein-cluster bootstrap DiD: sample proteins with replacement, include all
+        their pairs. Pre-computes protein → indices map so each bootstrap draw is O(n_proteins)
+        concatenation rather than O(n_pairs × n_proteins) linear scan."""
+        # Pre-build protein → indices LUT for each (model, arm)
+        prot_index_map: dict[tuple[str, str], Optional[tuple]] = {}
+        for key, prots in proteins_data.items():
+            if prots is None or len(prots) == 0:
+                prot_index_map[key] = None
+                continue
+            unique_p, inv = np.unique(prots, return_inverse=True)
+            # groups[k] = np.ndarray of indices where prots == unique_p[k]
+            order = np.argsort(inv, kind="stable")
+            inv_sorted = inv[order]
+            splits = np.searchsorted(inv_sorted, np.arange(len(unique_p) + 1))
+            groups = [order[splits[k]:splits[k + 1]] for k in range(len(unique_p))]
+            prot_index_map[key] = (unique_p, groups)
+
+        boot = np.empty(n)
+        for i in range(n):
+            bv: dict[tuple[str, str], float] = {}
+            for key, (yt, yp) in arms_data.items():
+                lut = prot_index_map[key]
+                if lut is None:
+                    n_pairs = len(yt)
+                    idx = rng_inner.integers(0, n_pairs, size=n_pairs)
+                    bv[key] = _pearson_r_safe(yt[idx], yp[idx])
+                    continue
+                unique_p, groups = lut
+                k = len(unique_p)
+                sampled_k = rng_inner.integers(0, k, size=k)
+                idx = np.concatenate([groups[j] for j in sampled_k])
+                bv[key] = _pearson_r_safe(yt[idx], yp[idx])
+            b_t = bv[(treated_model, "benchmark")] - bv[(treated_model, "holdout")]
+            b_c = bv[(control_model, "benchmark")] - bv[(control_model, "holdout")]
+            boot[i] = b_t - b_c
+        return boot
 
     for treated_model, control_model in model_pairs:
         pair_key = f"{treated_model}_vs_{control_model}"
@@ -257,8 +295,9 @@ def _did_estimator(
                 bench_preds = preds[preds["dataset"] == benchmark]
             holdout_preds = preds[preds["dataset"] == "holdout"]
 
-            # Collect (y_true, y_pred) arrays for each (model, arm)
+            # Collect (y_true, y_pred) arrays + protein sequences for each (model, arm)
             arms: dict[tuple[str, str], tuple[np.ndarray, np.ndarray]] = {}
+            arm_proteins: dict[tuple[str, str], Optional[np.ndarray]] = {}
             all_present = True
             for model in [treated_model, control_model]:
                 for arm_name, arm_df in [("benchmark", bench_preds), ("holdout", holdout_preds)]:
@@ -275,6 +314,11 @@ def _did_estimator(
                         mdf["y_true"].to_numpy(dtype=float),
                         mdf["y_pred"].to_numpy(dtype=float),
                     )
+                    arm_proteins[(model, arm_name)] = (
+                        mdf["protein_sequence"].to_numpy()
+                        if "protein_sequence" in mdf.columns
+                        else None
+                    )
                 if not all_present:
                     break
 
@@ -290,8 +334,8 @@ def _did_estimator(
             within_control = r_cb - r_ch
             did = within_treated - within_control
 
-            # Bootstrap: resample each (model, arm) group independently
-            boot_did = np.empty(n_boot)
+            # Pair-level bootstrap (independent pair resampling — optimistic CIs)
+            boot_did_pair = np.empty(n_boot)
             for i in range(n_boot):
                 bv: dict[tuple[str, str], float] = {}
                 for (model, arm), (yt, yp) in arms.items():
@@ -300,11 +344,19 @@ def _did_estimator(
                     bv[(model, arm)] = _pearson_r_safe(yt[idx], yp[idx])
                 b_treated = bv[(treated_model, "benchmark")] - bv[(treated_model, "holdout")]
                 b_control = bv[(control_model, "benchmark")] - bv[(control_model, "holdout")]
-                boot_did[i] = b_treated - b_control
+                boot_did_pair[i] = b_treated - b_control
 
-            ci_lo = float(np.nanpercentile(boot_did, 2.5))
-            ci_hi = float(np.nanpercentile(boot_did, 97.5))
-            p_value = float(np.mean(boot_did <= 0))
+            ci_lo_pair = float(np.nanpercentile(boot_did_pair, 2.5))
+            ci_hi_pair = float(np.nanpercentile(boot_did_pair, 97.5))
+            p_pair = float(np.mean(boot_did_pair <= 0))
+
+            # Protein-cluster bootstrap (sample proteins w/ replacement — conservative CIs)
+            # Pairs are not independent: each protein appears in hundreds of pairs.
+            # Cluster bootstrap correctly propagates this within-protein correlation.
+            boot_did_cluster = _cluster_boot_did(arms, arm_proteins, n_boot, rng)
+            ci_lo_cl = float(np.nanpercentile(boot_did_cluster, 2.5))
+            ci_hi_cl = float(np.nanpercentile(boot_did_cluster, 97.5))
+            p_cluster = float(np.mean(boot_did_cluster <= 0))
 
             result_key = f"{pair_key}__{benchmark}"
             results[result_key] = {
@@ -318,15 +370,22 @@ def _did_estimator(
                 "within_treated_gap": within_treated,
                 "within_control_gap": within_control,
                 "did": did,
-                "did_ci95": [ci_lo, ci_hi],
-                "p_value_one_sided": p_value,
+                # Pair-level bootstrap (used in paper — labelled optimistic)
+                "did_ci95_pair": [ci_lo_pair, ci_hi_pair],
+                "p_value_one_sided_pair": p_pair,
+                # Protein-cluster bootstrap (conservative — preferred for inference)
+                "did_ci95_cluster": [ci_lo_cl, ci_hi_cl],
+                "p_value_one_sided_cluster": p_cluster,
+                # Legacy key for backward compat — points to cluster CI (the conservative one)
+                "did_ci95": [ci_lo_cl, ci_hi_cl],
+                "p_value_one_sided": p_cluster,
                 f"n_{treated_model}_benchmark": int(len(arms[(treated_model, "benchmark")][0])),
                 f"n_{treated_model}_holdout": int(len(arms[(treated_model, "holdout")][0])),
                 f"n_{control_model}_benchmark": int(len(arms[(control_model, "benchmark")][0])),
                 f"n_{control_model}_holdout": int(len(arms[(control_model, "holdout")][0])),
                 "n_bootstrap": n_boot,
             }
-            distributions[result_key] = boot_did.tolist()
+            distributions[result_key] = boot_did_cluster.tolist()  # store cluster distribution
 
             if logger:
                 logger.info(
@@ -335,7 +394,7 @@ def _did_estimator(
                     "| DiD=%.4f [%.4f, %.4f] p=%.4f",
                     pair_key, benchmark, r_tb, r_th, within_treated,
                     r_cb, r_ch, within_control,
-                    did, ci_lo, ci_hi, p_value,
+                    did, ci_lo_cl, ci_hi_cl, p_cluster,
                 )
 
     return {"stats": results, "distributions": distributions}
@@ -592,6 +651,79 @@ def _protein_contamination_analysis(
     return {"stats": results}
 
 
+# ── analysis 5: threshold sensitivity ────────────────────────────────────────
+
+def _threshold_sensitivity(
+    preds: pd.DataFrame,
+    contam: pd.DataFrame,
+    thresholds: list[float] = [0.4, 0.5, 0.6, 0.7, 0.85],
+    logger=None,
+) -> dict[str, Any]:
+    """
+    Re-label compound contamination at multiple Tanimoto thresholds and recompute
+    Pearson r on resulting clean/contaminated subsets.
+
+    The primary analysis uses threshold=0.6 (scaffold-level similarity). Thresholds
+    0.4–0.5 are more permissive (labelling fewer compounds as contaminated); 0.7–0.85
+    require near-identical structures. Sensitivity analysis checks whether the null
+    finding (no contamination effect) depends on threshold choice.
+    """
+    contam_by_smiles = contam.set_index("smiles")["max_tanimoto"]
+
+    results: dict[str, Any] = {}
+
+    benchmarks = sorted(ds for ds in preds["dataset"].unique() if ds != "holdout")
+
+    for thr in thresholds:
+        thr_key = f"thr_{thr:.2f}".replace(".", "_")
+        thr_results: dict[str, Any] = {"threshold": thr, "models": {}}
+
+        for model in sorted(preds["model"].unique()):
+            mdf = preds[preds["model"] == model].copy()
+            # Re-apply contamination label at this threshold
+            mdf["max_tanimoto_at_thr"] = mdf["smiles"].map(contam_by_smiles)
+            valid = mdf.dropna(subset=["max_tanimoto_at_thr"])
+            valid = valid.copy()
+            valid["contam_class_thr"] = np.where(
+                valid["max_tanimoto_at_thr"] >= thr, "contaminated", "clean"
+            )
+
+            model_results: dict[str, Any] = {}
+            for benchmark in benchmarks:
+                bdf = valid[valid["dataset"] == benchmark]
+                for subset in ["contaminated", "clean"]:
+                    sub = bdf[bdf["contam_class_thr"] == subset]
+                    if len(sub) < 5:
+                        continue
+                    r = _pearson_r_safe(
+                        sub["y_true"].to_numpy(dtype=float),
+                        sub["y_pred"].to_numpy(dtype=float),
+                    )
+                    key = f"{benchmark}__{subset}"
+                    model_results[key] = {"pearson_r": r, "n": int(len(sub))}
+
+                # Summary: n_contaminated, n_clean at this threshold
+                n_cont = int((bdf.get("contam_class_thr", pd.Series(dtype=str)) == "contaminated").sum())
+                n_clean = int((bdf.get("contam_class_thr", pd.Series(dtype=str)) == "clean").sum())
+                bdf_valid = valid[valid["dataset"] == benchmark]
+                n_cont = int((bdf_valid["contam_class_thr"] == "contaminated").sum())
+                n_clean = int((bdf_valid["contam_class_thr"] == "clean").sum())
+                model_results[f"{benchmark}__n_contaminated"] = n_cont
+                model_results[f"{benchmark}__n_clean"] = n_clean
+
+            thr_results["models"][model] = model_results
+
+        results[thr_key] = thr_results
+
+        if logger:
+            logger.info(
+                "Threshold sensitivity thr=%.2f: computed for models %s",
+                thr, sorted(preds["model"].unique().tolist()),
+            )
+
+    return {"thresholds_tested": thresholds, "results": results}
+
+
 # ── figures ───────────────────────────────────────────────────────────────────
 
 def _fig_did(did_result: dict[str, Any], out_path: Path, logger) -> None:
@@ -840,6 +972,15 @@ def main() -> int:
         # ── analysis 4: protein sequence identity stratification ──
         logger.info("Computing protein contamination stratification (sequence identity vs UniRef50)...")
         prot_contam_result = _protein_contamination_analysis(preds, logger=logger)
+        status.update(phase, "running", progress=0.75)
+
+        # ── analysis 5: threshold sensitivity ──
+        logger.info("Running threshold sensitivity analysis (thresholds 0.4, 0.5, 0.6, 0.7, 0.85)...")
+        threshold_result = _threshold_sensitivity(
+            preds, contam,
+            thresholds=[0.4, 0.5, 0.6, 0.7, 0.85],
+            logger=logger,
+        )
         status.update(phase, "running", progress=0.80)
 
         # ── figures ──
@@ -942,6 +1083,16 @@ def main() -> int:
                     "benchmark proteins, so variance may be zero (itself a reportable null finding)."
                 ),
                 **prot_contam_result,
+            },
+            "analysis_5_threshold_sensitivity": {
+                "description": (
+                    "Sensitivity analysis: re-label compound contamination at Tanimoto thresholds "
+                    "0.4, 0.5, 0.6, 0.7, 0.85 and recompute per-subset Pearson r. "
+                    "Primary analysis uses 0.6 (scaffold-level). Higher thresholds (0.85) require "
+                    "near-identical structures; lower thresholds (0.4) label more compounds as clean. "
+                    "Checks whether the null contamination finding is threshold-dependent."
+                ),
+                **threshold_result,
             },
         }
 
