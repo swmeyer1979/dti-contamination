@@ -1,7 +1,6 @@
 # DTI Contamination: Causal Analysis of Pretraining Contamination in Drug-Target Interaction Benchmarks
 
-**Paper**: [Pretraining Contamination Does Not Inflate Drug-Target Interaction Benchmarks: A Causal Analysis](paper/main.pdf)  
-**arXiv**: (link after submission)
+**Paper**: _Pretraining Contamination Is Not Identifiable on Drug-Target Interaction Benchmarks: A Causal Analysis_ (arXiv link after submission)
 
 ---
 
@@ -38,10 +37,6 @@ The actionable conclusion: Davis and KIBA don't measure generalisation. Contamin
 │   ├── *_metrics.json          # Per-model performance metrics
 │   ├── stats_report.json       # Full statistical analysis output
 │   └── stats_figures/          # Publication figures (PNG, 300 DPI)
-├── paper/
-│   ├── main.tex                # LaTeX source
-│   ├── references.bib          # Bibliography
-│   └── figures/                # Figures for paper
 ├── run_pipeline_revised.sh     # Full pipeline runner
 ├── preflight.py                # Environment check
 └── requirements.txt            # Python dependencies
