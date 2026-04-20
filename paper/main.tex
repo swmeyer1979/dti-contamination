@@ -39,8 +39,9 @@ Evaluation Artifacts in Drug-Target Interaction Benchmarks}}
 On a novel-chemistry holdout of 1{,}028 drug-target pairs gated at Tanimoto $<$ 0.4
 versus ChEMBL27, a randomly-initialised ESM-2 + ChemBERTa transformer achieves
 higher macro-averaged per-target Pearson $r$ than its pretrained counterpart
-(pairwise $\Delta = +0.14$, 95\% target-bootstrap CI $[+0.004, +0.28]$;
-$\Pr[\Delta > 0 \mid \text{bootstrap}] = 0.979$).
+($\Delta = +0.14$; BCa 95\% CI $[+0.006, +0.278]$, percentile Fisher-$z$
+CI $[-0.012, +0.283]$;
+$\Pr[\Delta > 0 \mid \text{bootstrap}] = 0.978$).
 This paradoxical result is the signature of three evaluation artifacts that
 compound on drug-target interaction (DTI) benchmarks.
 First, a single kinase (Q92918/MAP3K1) contributes 53\% of the pairs in a
@@ -96,11 +97,11 @@ holdout (53\%). Under macro-averaged per-target Pearson $r$ (equal weight per
 target, minimum 10 pairs per target), the ranking inverts.
 The randomly-initialised transformer achieves macro-avg $r = +0.103$ across 12
 qualifying targets; the pretrained probe achieves $-0.035$.
-A pairwise target-level bootstrap puts this $\Delta = +0.14$ difference at 95\%
-CI $[+0.004, +0.28]$, with $\Pr[\Delta > 0 \mid \text{bootstrap}] = 0.979$
-(fraction of 10{,}000 paired target-resample iterations with positive
-$\Delta$; this is a one-sided bootstrap superiority probability, not a
-frequentist $p$-value).
+A pairwise target-level bootstrap gives BCa 95\% CI $[+0.006, +0.278]$;
+under Fisher-$z$ transformation the CI is $[-0.012, +0.283]$, which includes
+zero (see Section~\ref{sec:random-init}).
+$\Pr[\Delta > 0 \mid \text{bootstrap}] = 0.978$ (one-sided bootstrap superiority
+probability, not a frequentist $p$-value).
 The result is preserved across minimum-$n$ cutoffs in $\{5, 10, 20, 30\}$ and
 under leave-one-target-out.
 
@@ -519,10 +520,38 @@ ESM-2 vs.\ DeepDTA                 & $+0.005$ & $[-0.155, +0.158]$ & $0.532$ \\
 \end{tabular}
 \end{table}
 
-The random-init-vs-pretrained contrast has $\Delta = +0.138$ with 95\% CI
-barely excluding zero ($[+0.004, +0.276]$) and $P = 0.979$.
-The random-init transformer outperforms all three comparators at $P > 0.90$;
-only the contrast against ESM-2 clears a standard $P > 0.95$ threshold.
+The random-init-vs-pretrained contrast has $\Delta = +0.138$.
+Table~\ref{tab:ci-methods} compares three CI methods for this contrast.
+
+\begin{table}[h]
+\centering
+\caption{95\% CI for $\Delta r_\text{macro}$ (random-init vs.\ ESM-2)
+under three bootstrap procedures ($K=12$ targets, 50{,}000 iterations).}
+\label{tab:ci-methods}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Procedure} & \textbf{95\% CI} & \textbf{Excl.\ zero?} \\
+\midrule
+Percentile (raw $r$)         & $[+0.003, +0.275]$ & Yes (barely) \\
+BCa (raw $r$)                & $[+0.006, +0.278]$ & Yes (barely) \\
+Percentile (Fisher-$z$)      & $[-0.012, +0.283]$ & \textbf{No} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Fisher-$z$ CI crosses zero, consistent with the reviewer warning that
+raw-percentile bootstrap on Pearson $r$ is optimistic at $K=12$
+\citep{mackinnon2023fast}.
+BCa provides bias-corrected coverage and its lower bound is $+0.006$, but
+this is a fragile result: the formal superiority claim rests on a lower bound
+that is numerically indistinguishable from zero under any of these procedures.
+We retain the contrast as a \emph{diagnostic}---the rank reversal is robust
+to target weighting, seed variation, and leave-one-out---but do not assert
+formal frequentist superiority.
+$\Pr[\Delta > 0 \mid \text{bootstrap}] = 0.978$ under percentile and $0.963$
+under Fisher-$z$, reflecting strong directional consistency even without
+formal significance.
 
 The paradox: a transformer with randomly-initialised weights predicts novel
 chemistry better than the same transformer with pretrained weights, when
@@ -796,8 +825,9 @@ $K = 12$ is well inside the ``danger zone'' ($K < 30$) identified by
 \citet{cameron2015practitioner} for target-level bootstrap inference.
 The raw-percentile bootstrap on Pearson $r$ without Fisher-$z$ transformation
 is known to under-cover at small $K$ \citep{mackinnon2023fast}; under a
-realistic 85--88\% effective coverage, the reported CI $[+0.004, +0.276]$
-for the pairwise contrast could extend below zero.
+realistic 85--88\% effective coverage, the reported CIs are fragile: the
+Fisher-$z$ CI $[-0.012, +0.283]$ already includes zero, and the BCa lower
+bound ($+0.006$) is numerically near-zero.
 Fisher-$z$ transformation with BCa or studentised bootstrap-$t$ intervals
 \citep{mackinnon2023fast} would provide more reliable coverage;
 we report the percentile bootstrap as the primary procedure and note this
