@@ -27,6 +27,7 @@ Sentinels:
 
 from __future__ import annotations
 
+import argparse
 import json
 import traceback
 from pathlib import Path
@@ -56,7 +57,7 @@ from utils.smiles import validate_smiles, append_invalid_smiles
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Fixed random seed for all weight initialisations — ensures reproducibility
+# Default random seed — overridden by --seed CLI argument
 _RANDOM_SEED = 7
 
 
@@ -323,6 +324,14 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Random-transformer frozen probe for DTI prediction.")
+    parser.add_argument("--seed", type=int, default=7, help="Random seed for weight initialisation (default: 7)")
+    args = parser.parse_args()
+
+    # Override module-level seed with CLI arg
+    global _RANDOM_SEED
+    _RANDOM_SEED = args.seed
+
     phase = "phase4_random_transformer"
     prereq = "phase3_temporal_split"
     status = StatusUpdater(PROJECT_ROOT)
@@ -337,6 +346,7 @@ def main() -> int:
             status.update(phase, "blocked", error=str(e))
             return 0
 
+        logger.info("Random seed: %d", _RANDOM_SEED)
         device = _select_device()
         logger.info("Using device: %s", device)
 
@@ -363,8 +373,13 @@ def main() -> int:
         protein_to_idx = {s: i for i, s in enumerate(sequences)}
         smiles_to_idx = {s: i for i, s in enumerate(smiles_list)}
 
-        prot_emb_path = PROJECT_ROOT / "checkpoints" / "random_transformer_esm2_embeddings.npy"
-        chem_emb_path = PROJECT_ROOT / "checkpoints" / "random_transformer_chemberta_embeddings.npy"
+        # Seed-specific checkpoint paths (seed=7 uses legacy names for backward compat)
+        if _RANDOM_SEED == 7:
+            prot_emb_path = PROJECT_ROOT / "checkpoints" / "random_transformer_esm2_embeddings.npy"
+            chem_emb_path = PROJECT_ROOT / "checkpoints" / "random_transformer_chemberta_embeddings.npy"
+        else:
+            prot_emb_path = PROJECT_ROOT / "checkpoints" / f"random_transformer_esm2_embeddings_seed{_RANDOM_SEED}.npy"
+            chem_emb_path = PROJECT_ROOT / "checkpoints" / f"random_transformer_chemberta_embeddings_seed{_RANDOM_SEED}.npy"
 
         protein_emb = _embed_random_esm2(
             sequences, prot_emb_path, device=device, logger=logger, status=status, phase=phase
@@ -421,12 +436,19 @@ def main() -> int:
         results_dir = PROJECT_ROOT / "results"
         results_dir.mkdir(parents=True, exist_ok=True)
         metrics["_norm_stats"] = norm_stats
-        metrics_path = results_dir / "random_transformer_metrics.json"
+
+        # Seed=7 keeps legacy filenames for backward compat with downstream scripts
+        if _RANDOM_SEED == 7:
+            metrics_path = results_dir / "random_transformer_metrics.json"
+            pred_path = results_dir / "random_transformer_predictions.parquet"
+        else:
+            metrics_path = results_dir / f"random_transformer_seed{_RANDOM_SEED}_metrics.json"
+            pred_path = results_dir / f"random_transformer_seed{_RANDOM_SEED}_predictions.parquet"
+
         metrics_path.write_text(json.dumps(metrics, indent=2, sort_keys=True))
         logger.info("Wrote %s.", metrics_path)
 
         pred_df = pd.concat(pred_frames, ignore_index=True) if pred_frames else pd.DataFrame()
-        pred_path = results_dir / "random_transformer_predictions.parquet"
         pred_df.to_parquet(pred_path, index=False)
         logger.info("Wrote %s (%d rows).", pred_path, len(pred_df))
 

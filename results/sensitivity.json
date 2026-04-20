@@ -1,0 +1,400 @@
+{
+  "cutoff_sensitivity": {
+    "n_min_5": {
+      "esm2_probe": {
+        "n_targets": 23,
+        "macro_r": -0.007661976848635853,
+        "median_r": -0.012303228596815208,
+        "n_pairs_covered": 908
+      },
+      "deepdta": {
+        "n_targets": 23,
+        "macro_r": 0.022724349130939226,
+        "median_r": -0.07866378340026513,
+        "n_pairs_covered": 908
+      },
+      "random_probe": {
+        "n_targets": 23,
+        "macro_r": -0.016978373685299235,
+        "median_r": 0.015512614967015788,
+        "n_pairs_covered": 908
+      },
+      "random_transformer": {
+        "n_targets": 23,
+        "macro_r": 0.06371064666450521,
+        "median_r": 0.12061520553265834,
+        "n_pairs_covered": 908
+      }
+    },
+    "n_min_10": {
+      "esm2_probe": {
+        "n_targets": 12,
+        "macro_r": -0.0349434335093852,
+        "median_r": -0.06607854942604072,
+        "n_pairs_covered": 829
+      },
+      "deepdta": {
+        "n_targets": 12,
+        "macro_r": -0.03945961683245299,
+        "median_r": -0.11096744439478964,
+        "n_pairs_covered": 829
+      },
+      "random_probe": {
+        "n_targets": 12,
+        "macro_r": -0.04450107347882509,
+        "median_r": 0.010107458954817176,
+        "n_pairs_covered": 829
+      },
+      "random_transformer": {
+        "n_targets": 12,
+        "macro_r": 0.10254484831167136,
+        "median_r": 0.18217475949295914,
+        "n_pairs_covered": 829
+      }
+    },
+    "n_min_20": {
+      "esm2_probe": {
+        "n_targets": 7,
+        "macro_r": -0.01123095750847734,
+        "median_r": -0.08141784295106007,
+        "n_pairs_covered": 760
+      },
+      "deepdta": {
+        "n_targets": 7,
+        "macro_r": 0.07104745467696087,
+        "median_r": 0.04735057180337487,
+        "n_pairs_covered": 760
+      },
+      "random_probe": {
+        "n_targets": 7,
+        "macro_r": -0.036850895234592985,
+        "median_r": 0.011539533889382496,
+        "n_pairs_covered": 760
+      },
+      "random_transformer": {
+        "n_targets": 7,
+        "macro_r": 0.1909325801330953,
+        "median_r": 0.25412498881603796,
+        "n_pairs_covered": 760
+      }
+    },
+    "n_min_30": {
+      "esm2_probe": {
+        "n_targets": 5,
+        "macro_r": 0.022338414936285755,
+        "median_r": -0.05073925590102137,
+        "n_pairs_covered": 712
+      },
+      "deepdta": {
+        "n_targets": 5,
+        "macro_r": 0.14197885272707467,
+        "median_r": 0.22971528338560193,
+        "n_pairs_covered": 712
+      },
+      "random_probe": {
+        "n_targets": 5,
+        "macro_r": 0.029513755728507063,
+        "median_r": 0.011539533889382496,
+        "n_pairs_covered": 712
+      },
+      "random_transformer": {
+        "n_targets": 5,
+        "macro_r": 0.17959439298850496,
+        "median_r": 0.25412498881603796,
+        "n_pairs_covered": 712
+      }
+    }
+  },
+  "leave_one_out": {
+    "esm2_probe": {
+      "base_macro": -0.0349434335093852,
+      "n_targets": 12,
+      "most_influential": [
+        {
+          "dropped_protein": "Q06187",
+          "dropped_n": 14,
+          "dropped_r": -0.5725502553437397,
+          "macro_without": 0.013929913930101578,
+          "delta": 0.04887334743948678
+        },
+        {
+          "dropped_protein": "P41182",
+          "dropped_n": 36,
+          "dropped_r": 0.21180919692029013,
+          "macro_without": -0.05737549082117387,
+          "delta": -0.022432057311788677
+        },
+        {
+          "dropped_protein": "Q13464",
+          "dropped_n": 32,
+          "dropped_r": 0.20324285717053725,
+          "macro_without": -0.056596732662105416,
+          "delta": -0.02165329915272022
+        },
+        {
+          "dropped_protein": "P43115",
+          "dropped_n": 12,
+          "dropped_r": 0.18389695424976693,
+          "macro_without": -0.05483801421476266,
+          "delta": -0.019894580705377467
+        },
+        {
+          "dropped_protein": "P32245",
+          "dropped_n": 12,
+          "dropped_r": 0.1556357711958941,
+          "macro_without": -0.05226881575531968,
+          "delta": -0.01732538224593448
+        }
+      ],
+      "range_of_macro_without": [
+        -0.05737549082117387,
+        0.013929913930101578
+      ]
+    },
+    "deepdta": {
+      "base_macro": -0.03945961683245299,
+      "n_targets": 12,
+      "most_influential": [
+        {
+          "dropped_protein": "Q92918",
+          "dropped_n": 428,
+          "dropped_r": 0.44651793348812574,
+          "macro_without": -0.08363939413432378,
+          "delta": -0.04417977730187079
+        },
+        {
+          "dropped_protein": "Q06187",
+          "dropped_n": 14,
+          "dropped_r": -0.47930765403931286,
+          "macro_without": 0.0005265683681706101,
+          "delta": 0.0399861852006236
+        },
+        {
+          "dropped_protein": "Q13546",
+          "dropped_n": 82,
+          "dropped_r": 0.2555959355512249,
+          "macro_without": -0.06628284886733281,
+          "delta": -0.026823232034879817
+        },
+        {
+          "dropped_protein": "P41182",
+          "dropped_n": 36,
+          "dropped_r": 0.22971528338560193,
+          "macro_without": -0.06393006230682162,
+          "delta": -0.024470445474368628
+        },
+        {
+          "dropped_protein": "O75116",
+          "dropped_n": 24,
+          "dropped_r": -0.25991265270002206,
+          "macro_without": -0.019418431753583085,
+          "delta": 0.020041185078869907
+        }
+      ],
+      "range_of_macro_without": [
+        -0.08363939413432378,
+        0.0005265683681706101
+      ]
+    },
+    "random_probe": {
+      "base_macro": -0.04450107347882509,
+      "n_targets": 12,
+      "most_influential": [
+        {
+          "dropped_protein": "Q06187",
+          "dropped_n": 14,
+          "dropped_r": -0.6830882063575047,
+          "macro_without": 0.013552302237418495,
+          "delta": 0.05805337571624359
+        },
+        {
+          "dropped_protein": "P08581",
+          "dropped_n": 14,
+          "dropped_r": 0.5806384088392786,
+          "macro_without": -0.10133193550774361,
+          "delta": -0.056830862028918516
+        },
+        {
+          "dropped_protein": "Q07889",
+          "dropped_n": 24,
+          "dropped_r": -0.42103766025170203,
+          "macro_without": -0.010270474681290833,
+          "delta": 0.03423059879753426
+        },
+        {
+          "dropped_protein": "P32245",
+          "dropped_n": 12,
+          "dropped_r": -0.411850859436689,
+          "macro_without": -0.011105638391746568,
+          "delta": 0.033395435087078526
+        },
+        {
+          "dropped_protein": "P03951",
+          "dropped_n": 17,
+          "dropped_r": 0.3095166264377152,
+          "macro_without": -0.07668450074396511,
+          "delta": -0.03218342726514002
+        }
+      ],
+      "range_of_macro_without": [
+        -0.10133193550774361,
+        0.013552302237418495
+      ]
+    },
+    "random_transformer": {
+      "base_macro": 0.10254484831167136,
+      "n_targets": 12,
+      "most_influential": [
+        {
+          "dropped_protein": "Q06187",
+          "dropped_n": 14,
+          "dropped_r": -0.7099970365335457,
+          "macro_without": 0.17641229238850925,
+          "delta": 0.07386744407683789
+        },
+        {
+          "dropped_protein": "P03951",
+          "dropped_n": 17,
+          "dropped_r": -0.3692470861265784,
+          "macro_without": 0.14543502416969403,
+          "delta": 0.04289017585802267
+        },
+        {
+          "dropped_protein": "P08581",
+          "dropped_n": 14,
+          "dropped_r": 0.5640278071503628,
+          "macro_without": 0.0605918520536085,
+          "delta": -0.04195299625806286
+        },
+        {
+          "dropped_protein": "P41182",
+          "dropped_n": 36,
+          "dropped_r": 0.36056221451123416,
+          "macro_without": 0.0790887241117111,
+          "delta": -0.023456124199960265
+        },
+        {
+          "dropped_protein": "Q13546",
+          "dropped_n": 82,
+          "dropped_r": 0.3444840111731469,
+          "macro_without": 0.08055037896062812,
+          "delta": -0.02199446935104324
+        }
+      ],
+      "range_of_macro_without": [
+        0.0605918520536085,
+        0.17641229238850925
+      ]
+    }
+  },
+  "target_bootstrap": {
+    "esm2_probe": {
+      "n_targets": 12,
+      "macro": -0.0349434335093852,
+      "ci95": [
+        -0.16266393037173177,
+        0.07406283244682339
+      ]
+    },
+    "deepdta": {
+      "n_targets": 12,
+      "macro": -0.03945961683245299,
+      "ci95": [
+        -0.17983662014804794,
+        0.10487392820053906
+      ]
+    },
+    "random_probe": {
+      "n_targets": 12,
+      "macro": -0.04450107347882509,
+      "ci95": [
+        -0.22416592622579062,
+        0.13728717263329382
+      ]
+    },
+    "random_transformer": {
+      "n_targets": 12,
+      "macro": 0.10254484831167136,
+      "ci95": [
+        -0.10159564129820361,
+        0.28109989884864656
+      ]
+    },
+    "_pairwise_deltas": {
+      "random_transformer_minus_esm2_probe": {
+        "n_common_targets": 12,
+        "observed_delta": 0.13748828182105655,
+        "ci95": [
+          0.003601495907032237,
+          0.27554610752589703
+        ],
+        "p_treat_beats_ctrl": 0.9788
+      },
+      "random_transformer_minus_deepdta": {
+        "n_common_targets": 12,
+        "observed_delta": 0.14200446514412435,
+        "ci95": [
+          -0.028418751383833825,
+          0.30977421026475727
+        ],
+        "p_treat_beats_ctrl": 0.9462
+      },
+      "esm2_probe_minus_deepdta": {
+        "n_common_targets": 12,
+        "observed_delta": 0.004516183323067811,
+        "ci95": [
+          -0.1552055134103586,
+          0.1580455766295596
+        ],
+        "p_treat_beats_ctrl": 0.5325
+      },
+      "random_probe_minus_random_transformer": {
+        "n_common_targets": 12,
+        "observed_delta": -0.14704592179049647,
+        "ci95": [
+          -0.3367286614412521,
+          0.0602960115671788
+        ],
+        "p_treat_beats_ctrl": 0.0806
+      }
+    }
+  },
+  "wild_cluster_bootstrap": {
+    "esm2_probe": {
+      "n_targets": 12,
+      "macro": -0.0349434335093852,
+      "ci95_wild_cluster": [
+        -0.1472514875433287,
+        0.07627975156472476
+      ],
+      "method": "Rademacher wild bootstrap on target-level r (\u03b5_t \u2208 {-1,+1} per target)"
+    },
+    "deepdta": {
+      "n_targets": 12,
+      "macro": -0.03945961683245299,
+      "ci95_wild_cluster": [
+        -0.17719421543668737,
+        0.10088082275600196
+      ],
+      "method": "Rademacher wild bootstrap on target-level r (\u03b5_t \u2208 {-1,+1} per target)"
+    },
+    "random_probe": {
+      "n_targets": 12,
+      "macro": -0.04450107347882509,
+      "ci95_wild_cluster": [
+        -0.2203722929455927,
+        0.13315336906447975
+      ],
+      "method": "Rademacher wild bootstrap on target-level r (\u03b5_t \u2208 {-1,+1} per target)"
+    },
+    "random_transformer": {
+      "n_targets": 12,
+      "macro": 0.10254484831167136,
+      "ci95_wild_cluster": [
+        -0.0792698986231782,
+        0.286645209051574
+      ],
+      "method": "Rademacher wild bootstrap on target-level r (\u03b5_t \u2208 {-1,+1} per target)"
+    }
+  }
+}

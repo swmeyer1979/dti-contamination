@@ -1,0 +1,27 @@
+{
+  "r_true": 0.9154071480986277,
+  "n_replications": 300,
+  "n_boot_per_rep": 500,
+  "methods": {
+    "pair": {
+      "coverage": 0.17,
+      "mean_ci_width": 0.006202516254358124,
+      "median_ci_width": 0.006189952848805913
+    },
+    "cluster_protein": {
+      "coverage": 0.7333333333333333,
+      "mean_ci_width": 0.026782536780714742,
+      "median_ci_width": 0.026478775141868416
+    },
+    "cluster_compound": {
+      "coverage": 0.21,
+      "mean_ci_width": 0.007762290543516694,
+      "median_ci_width": 0.007615543084717402
+    },
+    "two_way": {
+      "coverage": 0.7566666666666667,
+      "mean_ci_width": 0.028513939133868682,
+      "median_ci_width": 0.028359331985664538
+    }
+  }
+}

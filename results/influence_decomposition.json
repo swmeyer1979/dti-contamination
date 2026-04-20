@@ -1,0 +1,2066 @@
+{
+  "esm2_probe": {
+    "pooled_r": 0.03445893452819693,
+    "n_total": 1028,
+    "by_target": [
+      {
+        "protein": "Q92918",
+        "n": 428,
+        "influence": 0.14435400716241406,
+        "pooled_r_without": -0.10989507263421713
+      },
+      {
+        "protein": "P11309",
+        "n": 134,
+        "influence": -0.07195134208826423,
+        "pooled_r_without": 0.10641027661646116
+      },
+      {
+        "protein": "Q13464",
+        "n": 32,
+        "influence": -0.06004408009246434,
+        "pooled_r_without": 0.09450301462066127
+      },
+      {
+        "protein": "Q13546",
+        "n": 82,
+        "influence": 0.02362634019310686,
+        "pooled_r_without": 0.01083259433509007
+      },
+      {
+        "protein": "P41182",
+        "n": 36,
+        "influence": -0.015120632477720858,
+        "pooled_r_without": 0.049579567005917785
+      },
+      {
+        "protein": "O75116",
+        "n": 24,
+        "influence": -0.00897088364921586,
+        "pooled_r_without": 0.04342981817741279
+      },
+      {
+        "protein": "P08581",
+        "n": 14,
+        "influence": 0.008745938114071053,
+        "pooled_r_without": 0.025712996414125874
+      },
+      {
+        "protein": "O60341",
+        "n": 6,
+        "influence": 0.007734961770807104,
+        "pooled_r_without": 0.026723972757389823
+      },
+      {
+        "protein": "P01116",
+        "n": 5,
+        "influence": 0.006847565347086866,
+        "pooled_r_without": 0.02761136918111006
+      },
+      {
+        "protein": "P22607",
+        "n": 4,
+        "influence": 0.00682391413601734,
+        "pooled_r_without": 0.027635020392179587
+      },
+      {
+        "protein": "P11362",
+        "n": 4,
+        "influence": 0.006556501043417314,
+        "pooled_r_without": 0.027902433484779613
+      },
+      {
+        "protein": "P03951",
+        "n": 17,
+        "influence": -0.0056788593513184965,
+        "pooled_r_without": 0.040137793879515424
+      },
+      {
+        "protein": "P35367",
+        "n": 6,
+        "influence": 0.005247235864385989,
+        "pooled_r_without": 0.029211698663810938
+      },
+      {
+        "protein": "Q99720",
+        "n": 4,
+        "influence": 0.005167560751552051,
+        "pooled_r_without": 0.029291373776644876
+      },
+      {
+        "protein": "P30542",
+        "n": 9,
+        "influence": 0.005152013291277839,
+        "pooled_r_without": 0.029306921236919088
+      },
+      {
+        "protein": "Q07820",
+        "n": 9,
+        "influence": 0.004794055536091031,
+        "pooled_r_without": 0.029664878992105896
+      },
+      {
+        "protein": "P21802",
+        "n": 3,
+        "influence": 0.004738813843605857,
+        "pooled_r_without": 0.02972012068459107
+      },
+      {
+        "protein": "Q06187",
+        "n": 14,
+        "influence": -0.004613645914838357,
+        "pooled_r_without": 0.039072580443035285
+      },
+      {
+        "protein": "P49841",
+        "n": 2,
+        "influence": 0.004443644708921418,
+        "pooled_r_without": 0.03001528981927551
+      },
+      {
+        "protein": "P22455",
+        "n": 2,
+        "influence": 0.0037857935036448263,
+        "pooled_r_without": 0.0306731410245521
+      },
+      {
+        "protein": "Q5BJF2",
+        "n": 5,
+        "influence": 0.003654664091851542,
+        "pooled_r_without": 0.030804270436345385
+      },
+      {
+        "protein": "P14867",
+        "n": 4,
+        "influence": 0.003087935730612258,
+        "pooled_r_without": 0.03137099879758467
+      },
+      {
+        "protein": "P24941",
+        "n": 2,
+        "influence": 0.0029346614782711986,
+        "pooled_r_without": 0.03152427304992573
+      },
+      {
+        "protein": "P05067",
+        "n": 3,
+        "influence": 0.0027556689559649003,
+        "pooled_r_without": 0.03170326557223203
+      },
+      {
+        "protein": "P29274",
+        "n": 9,
+        "influence": 0.00226308418120702,
+        "pooled_r_without": 0.03219585034698991
+      },
+      {
+        "protein": "O00444",
+        "n": 2,
+        "influence": 0.002154896505743381,
+        "pooled_r_without": 0.032304038022453546
+      },
+      {
+        "protein": "Q14145",
+        "n": 2,
+        "influence": 0.002147174983355725,
+        "pooled_r_without": 0.0323117595448412
+      },
+      {
+        "protein": "P07949",
+        "n": 1,
+        "influence": 0.002114952593389466,
+        "pooled_r_without": 0.03234398193480746
+      },
+      {
+        "protein": "P08912",
+        "n": 4,
+        "influence": 0.0019484837814722905,
+        "pooled_r_without": 0.03251045074672464
+      },
+      {
+        "protein": "P49674",
+        "n": 4,
+        "influence": 0.0019397811586738534,
+        "pooled_r_without": 0.032519153369523074
+      },
+      {
+        "protein": "P0DMS8",
+        "n": 3,
+        "influence": -0.0018659574781294402,
+        "pooled_r_without": 0.03632489200632637
+      },
+      {
+        "protein": "Q9NWZ3",
+        "n": 2,
+        "influence": 0.0018494003578038085,
+        "pooled_r_without": 0.03260953417039312
+      },
+      {
+        "protein": "P28223",
+        "n": 1,
+        "influence": 0.00173447364133332,
+        "pooled_r_without": 0.03272446088686361
+      },
+      {
+        "protein": "P14902",
+        "n": 2,
+        "influence": -0.0017160315341806925,
+        "pooled_r_without": 0.03617496606237762
+      },
+      {
+        "protein": "P29317",
+        "n": 1,
+        "influence": 0.0016781732631610466,
+        "pooled_r_without": 0.03278076126503588
+      },
+      {
+        "protein": "P11229",
+        "n": 4,
+        "influence": -0.0015548287725789187,
+        "pooled_r_without": 0.036013763300775846
+      },
+      {
+        "protein": "P53667",
+        "n": 2,
+        "influence": -0.0013733673183626977,
+        "pooled_r_without": 0.035832301846559625
+      },
+      {
+        "protein": "P36888",
+        "n": 2,
+        "influence": -0.0013178093029103596,
+        "pooled_r_without": 0.03577674383110729
+      },
+      {
+        "protein": "Q15059",
+        "n": 2,
+        "influence": 0.0013042723499677306,
+        "pooled_r_without": 0.0331546621782292
+      },
+      {
+        "protein": "Q00987",
+        "n": 1,
+        "influence": 0.0012178552676295543,
+        "pooled_r_without": 0.03324107926056737
+      },
+      {
+        "protein": "Q92630",
+        "n": 1,
+        "influence": 0.0012155406805496108,
+        "pooled_r_without": 0.033243393847647316
+      },
+      {
+        "protein": "P49759",
+        "n": 2,
+        "influence": 0.001213753553329519,
+        "pooled_r_without": 0.03324518097486741
+      },
+      {
+        "protein": "P20309",
+        "n": 4,
+        "influence": -0.0011867362564547748,
+        "pooled_r_without": 0.0356456707846517
+      },
+      {
+        "protein": "Q9Y463",
+        "n": 2,
+        "influence": 0.0010911054521074576,
+        "pooled_r_without": 0.03336782907608947
+      },
+      {
+        "protein": "Q13627",
+        "n": 4,
+        "influence": -0.0010304665151812595,
+        "pooled_r_without": 0.03548940104337819
+      },
+      {
+        "protein": "O00329",
+        "n": 2,
+        "influence": 0.0009618025366481125,
+        "pooled_r_without": 0.033497131991548815
+      },
+      {
+        "protein": "O43353",
+        "n": 3,
+        "influence": -0.0009430532362983551,
+        "pooled_r_without": 0.03540198776449528
+      },
+      {
+        "protein": "O95136",
+        "n": 1,
+        "influence": 0.0008904473256830525,
+        "pooled_r_without": 0.033568487202513875
+      },
+      {
+        "protein": "P07900",
+        "n": 1,
+        "influence": 0.0008637197451753995,
+        "pooled_r_without": 0.03359521478302153
+      },
+      {
+        "protein": "O75417",
+        "n": 2,
+        "influence": -0.0008269465795301828,
+        "pooled_r_without": 0.03528588110772711
+      },
+      {
+        "protein": "P10415",
+        "n": 7,
+        "influence": 0.0007460455231574833,
+        "pooled_r_without": 0.033712889005039444
+      },
+      {
+        "protein": "P42336",
+        "n": 7,
+        "influence": -0.000734898915423679,
+        "pooled_r_without": 0.035193833443620606
+      },
+      {
+        "protein": "P53671",
+        "n": 2,
+        "influence": -0.0007306277847518722,
+        "pooled_r_without": 0.0351895623129488
+      },
+      {
+        "protein": "O14965",
+        "n": 2,
+        "influence": 0.0006837206392730846,
+        "pooled_r_without": 0.03377521388892384
+      },
+      {
+        "protein": "Q56UN5",
+        "n": 1,
+        "influence": -0.0006489450563146315,
+        "pooled_r_without": 0.03510787958451156
+      },
+      {
+        "protein": "P35462",
+        "n": 1,
+        "influence": 0.0006236745970361682,
+        "pooled_r_without": 0.03383525993116076
+      },
+      {
+        "protein": "O60885",
+        "n": 3,
+        "influence": 0.0006086992019016177,
+        "pooled_r_without": 0.03385023532629531
+      },
+      {
+        "protein": "Q15303",
+        "n": 1,
+        "influence": -0.000594529524659923,
+        "pooled_r_without": 0.03505346405285685
+      },
+      {
+        "protein": "Q02127",
+        "n": 2,
+        "influence": -0.0005938838375209032,
+        "pooled_r_without": 0.03505281836571783
+      },
+      {
+        "protein": "P29597",
+        "n": 8,
+        "influence": -0.0005520763090610462,
+        "pooled_r_without": 0.03501101083725797
+      },
+      {
+        "protein": "P08908",
+        "n": 1,
+        "influence": -0.0005463902464009768,
+        "pooled_r_without": 0.035005324774597904
+      },
+      {
+        "protein": "P52333",
+        "n": 1,
+        "influence": 0.0004927585928609438,
+        "pooled_r_without": 0.033966175935335984
+      },
+      {
+        "protein": "Q9P289",
+        "n": 1,
+        "influence": -0.0004645656106564769,
+        "pooled_r_without": 0.034923500138853404
+      },
+      {
+        "protein": "Q06124",
+        "n": 1,
+        "influence": -0.00041355449780428044,
+        "pooled_r_without": 0.03487248902600121
+      },
+      {
+        "protein": "P41595",
+        "n": 2,
+        "influence": -0.0004113805407540555,
+        "pooled_r_without": 0.03487031506895098
+      },
+      {
+        "protein": "P42345",
+        "n": 8,
+        "influence": -0.00037435834115271543,
+        "pooled_r_without": 0.03483329286934964
+      },
+      {
+        "protein": "P35372",
+        "n": 1,
+        "influence": 0.00036709882471713806,
+        "pooled_r_without": 0.03409183570347979
+      },
+      {
+        "protein": "P51813",
+        "n": 1,
+        "influence": 0.0003205338714250272,
+        "pooled_r_without": 0.0341384006567719
+      },
+      {
+        "protein": "P43115",
+        "n": 12,
+        "influence": 0.0003171327718195574,
+        "pooled_r_without": 0.03414180175637737
+      },
+      {
+        "protein": "P29275",
+        "n": 2,
+        "influence": 0.00031266686779484604,
+        "pooled_r_without": 0.03414626766040208
+      },
+      {
+        "protein": "P32245",
+        "n": 12,
+        "influence": 0.000309869436631513,
+        "pooled_r_without": 0.034149065091565414
+      },
+      {
+        "protein": "Q9UEE5",
+        "n": 3,
+        "influence": -0.00029056124649432663,
+        "pooled_r_without": 0.034749495774691254
+      },
+      {
+        "protein": "P10721",
+        "n": 1,
+        "influence": -0.0002792981200603617,
+        "pooled_r_without": 0.03473823264825729
+      },
+      {
+        "protein": "P10275",
+        "n": 1,
+        "influence": 0.00024447263867351937,
+        "pooled_r_without": 0.03421446188952341
+      },
+      {
+        "protein": "P40763",
+        "n": 1,
+        "influence": 0.00024156397666891954,
+        "pooled_r_without": 0.03421737055152801
+      },
+      {
+        "protein": "P28335",
+        "n": 1,
+        "influence": -0.00021693873223689597,
+        "pooled_r_without": 0.03467587326043382
+      },
+      {
+        "protein": "P51617",
+        "n": 1,
+        "influence": -0.00021291481809920798,
+        "pooled_r_without": 0.034671849346296135
+      },
+      {
+        "protein": "Q6PL18",
+        "n": 1,
+        "influence": 0.00018759739141814558,
+        "pooled_r_without": 0.03427133713677878
+      },
+      {
+        "protein": "P42680",
+        "n": 1,
+        "influence": 0.00017825479330337707,
+        "pooled_r_without": 0.03428067973489355
+      },
+      {
+        "protein": "P42681",
+        "n": 1,
+        "influence": 0.00014720235071554594,
+        "pooled_r_without": 0.03431173217748138
+      },
+      {
+        "protein": "O14976",
+        "n": 1,
+        "influence": 8.153538029266605e-05,
+        "pooled_r_without": 0.03437739914790426
+      },
+      {
+        "protein": "P03952",
+        "n": 1,
+        "influence": -3.552590746523643e-05,
+        "pooled_r_without": 0.034494460435662164
+      },
+      {
+        "protein": "P34972",
+        "n": 1,
+        "influence": 3.386803965407803e-05,
+        "pooled_r_without": 0.03442506648854285
+      },
+      {
+        "protein": "Q07889",
+        "n": 24,
+        "influence": 3.0313859367234186e-05,
+        "pooled_r_without": 0.03442862066882969
+      },
+      {
+        "protein": "P51451",
+        "n": 1,
+        "influence": -6.4779660040037434e-06,
+        "pooled_r_without": 0.03446541249420093
+      }
+    ]
+  },
+  "deepdta": {
+    "pooled_r": 0.32886647193657315,
+    "n_total": 1028,
+    "by_target": [
+      {
+        "protein": "Q92918",
+        "n": 428,
+        "influence": 0.5126461868851242,
+        "pooled_r_without": -0.18377971494855103
+      },
+      {
+        "protein": "P11309",
+        "n": 134,
+        "influence": -0.13927403024348517,
+        "pooled_r_without": 0.4681405021800583
+      },
+      {
+        "protein": "Q13464",
+        "n": 32,
+        "influence": -0.04765389607743875,
+        "pooled_r_without": 0.3765203680140119
+      },
+      {
+        "protein": "Q13546",
+        "n": 82,
+        "influence": 0.028878398117147874,
+        "pooled_r_without": 0.29998807381942527
+      },
+      {
+        "protein": "O75116",
+        "n": 24,
+        "influence": -0.013917797525968945,
+        "pooled_r_without": 0.3427842694625421
+      },
+      {
+        "protein": "P03951",
+        "n": 17,
+        "influence": -0.010580643666155742,
+        "pooled_r_without": 0.3394471156027289
+      },
+      {
+        "protein": "Q07820",
+        "n": 9,
+        "influence": 0.006212800773314764,
+        "pooled_r_without": 0.3226536711632584
+      },
+      {
+        "protein": "P08581",
+        "n": 14,
+        "influence": 0.0057726541213434235,
+        "pooled_r_without": 0.3230938178152297
+      },
+      {
+        "protein": "P10415",
+        "n": 7,
+        "influence": 0.005420888072100505,
+        "pooled_r_without": 0.32344558386447264
+      },
+      {
+        "protein": "P22607",
+        "n": 4,
+        "influence": -0.0050843806784012235,
+        "pooled_r_without": 0.33395085261497437
+      },
+      {
+        "protein": "P01116",
+        "n": 5,
+        "influence": 0.004783950165539119,
+        "pooled_r_without": 0.324082521771034
+      },
+      {
+        "protein": "P11362",
+        "n": 4,
+        "influence": -0.004370314300316092,
+        "pooled_r_without": 0.33323678623688924
+      },
+      {
+        "protein": "Q9Y463",
+        "n": 2,
+        "influence": -0.003918033148795963,
+        "pooled_r_without": 0.3327845050853691
+      },
+      {
+        "protein": "P29274",
+        "n": 9,
+        "influence": 0.0034432104856697565,
+        "pooled_r_without": 0.3254232614509034
+      },
+      {
+        "protein": "Q99720",
+        "n": 4,
+        "influence": 0.003138075722437128,
+        "pooled_r_without": 0.325728396214136
+      },
+      {
+        "protein": "P51451",
+        "n": 1,
+        "influence": -0.0024904562569896815,
+        "pooled_r_without": 0.3313569281935628
+      },
+      {
+        "protein": "P22455",
+        "n": 2,
+        "influence": 0.0024749096645121926,
+        "pooled_r_without": 0.32639156227206095
+      },
+      {
+        "protein": "P43115",
+        "n": 12,
+        "influence": -0.0023657912799617264,
+        "pooled_r_without": 0.3312322632165349
+      },
+      {
+        "protein": "Q06187",
+        "n": 14,
+        "influence": -0.0022651152860275747,
+        "pooled_r_without": 0.3311315872226007
+      },
+      {
+        "protein": "P24941",
+        "n": 2,
+        "influence": 0.0022003790041279503,
+        "pooled_r_without": 0.3266660929324452
+      },
+      {
+        "protein": "Q00987",
+        "n": 1,
+        "influence": 0.002157818571316805,
+        "pooled_r_without": 0.32670865336525634
+      },
+      {
+        "protein": "P35367",
+        "n": 6,
+        "influence": 0.002129210219987243,
+        "pooled_r_without": 0.3267372617165859
+      },
+      {
+        "protein": "P42336",
+        "n": 7,
+        "influence": -0.002122027617783906,
+        "pooled_r_without": 0.33098849955435705
+      },
+      {
+        "protein": "Q13627",
+        "n": 4,
+        "influence": -0.002030751525504748,
+        "pooled_r_without": 0.3308972234620779
+      },
+      {
+        "protein": "Q07889",
+        "n": 24,
+        "influence": -0.0018288060500000758,
+        "pooled_r_without": 0.3306952779865732
+      },
+      {
+        "protein": "P07900",
+        "n": 1,
+        "influence": 0.001763052484844374,
+        "pooled_r_without": 0.32710341945172877
+      },
+      {
+        "protein": "P49841",
+        "n": 2,
+        "influence": -0.0017591099414470124,
+        "pooled_r_without": 0.33062558187802016
+      },
+      {
+        "protein": "P41595",
+        "n": 2,
+        "influence": 0.0017581501163069224,
+        "pooled_r_without": 0.3271083218202662
+      },
+      {
+        "protein": "Q5BJF2",
+        "n": 5,
+        "influence": 0.0017273229041885885,
+        "pooled_r_without": 0.32713914903238456
+      },
+      {
+        "protein": "P14902",
+        "n": 2,
+        "influence": -0.0016946354197511226,
+        "pooled_r_without": 0.33056110735632427
+      },
+      {
+        "protein": "O75417",
+        "n": 2,
+        "influence": 0.001628150060219935,
+        "pooled_r_without": 0.3272383218763532
+      },
+      {
+        "protein": "O60341",
+        "n": 6,
+        "influence": 0.0015658746856615502,
+        "pooled_r_without": 0.3273005972509116
+      },
+      {
+        "protein": "Q9NWZ3",
+        "n": 2,
+        "influence": 0.0014340441273557047,
+        "pooled_r_without": 0.32743242780921744
+      },
+      {
+        "protein": "P32245",
+        "n": 12,
+        "influence": -0.0013175349943085335,
+        "pooled_r_without": 0.3301840069308817
+      },
+      {
+        "protein": "P49674",
+        "n": 4,
+        "influence": 0.0012501241589369383,
+        "pooled_r_without": 0.3276163477776362
+      },
+      {
+        "protein": "P0DMS8",
+        "n": 3,
+        "influence": 0.0012451254665716283,
+        "pooled_r_without": 0.3276213464700015
+      },
+      {
+        "protein": "O00329",
+        "n": 2,
+        "influence": -0.001204897554858364,
+        "pooled_r_without": 0.3300713694914315
+      },
+      {
+        "protein": "Q56UN5",
+        "n": 1,
+        "influence": -0.0010750551816749998,
+        "pooled_r_without": 0.32994152711824815
+      },
+      {
+        "protein": "O00444",
+        "n": 2,
+        "influence": -0.0010670454924675,
+        "pooled_r_without": 0.32993351742904065
+      },
+      {
+        "protein": "Q14145",
+        "n": 2,
+        "influence": 0.000925620320717635,
+        "pooled_r_without": 0.3279408516158555
+      },
+      {
+        "protein": "P28223",
+        "n": 1,
+        "influence": 0.0009096980858199766,
+        "pooled_r_without": 0.32795677385075317
+      },
+      {
+        "protein": "Q15303",
+        "n": 1,
+        "influence": 0.0008820186539952868,
+        "pooled_r_without": 0.32798445328257786
+      },
+      {
+        "protein": "P53667",
+        "n": 2,
+        "influence": -0.00087942451755324,
+        "pooled_r_without": 0.3297458964541264
+      },
+      {
+        "protein": "P07949",
+        "n": 1,
+        "influence": -0.0008032154569090344,
+        "pooled_r_without": 0.3296696873934822
+      },
+      {
+        "protein": "P30542",
+        "n": 9,
+        "influence": 0.0007493962001695609,
+        "pooled_r_without": 0.3281170757364036
+      },
+      {
+        "protein": "P42345",
+        "n": 8,
+        "influence": 0.0007421981795546762,
+        "pooled_r_without": 0.32812427375701847
+      },
+      {
+        "protein": "Q15059",
+        "n": 2,
+        "influence": 0.0006937190566206897,
+        "pooled_r_without": 0.32817275287995246
+      },
+      {
+        "protein": "O43353",
+        "n": 3,
+        "influence": 0.0006751275295385772,
+        "pooled_r_without": 0.32819134440703457
+      },
+      {
+        "protein": "P29597",
+        "n": 8,
+        "influence": -0.0006495653397826651,
+        "pooled_r_without": 0.3295160372763558
+      },
+      {
+        "protein": "P51813",
+        "n": 1,
+        "influence": -0.0006108927132850717,
+        "pooled_r_without": 0.3294773646498582
+      },
+      {
+        "protein": "P08908",
+        "n": 1,
+        "influence": 0.0005707563165135432,
+        "pooled_r_without": 0.3282957156200596
+      },
+      {
+        "protein": "P42680",
+        "n": 1,
+        "influence": 0.0005551762186990494,
+        "pooled_r_without": 0.3283112957178741
+      },
+      {
+        "protein": "P20309",
+        "n": 4,
+        "influence": -0.0005329165173625361,
+        "pooled_r_without": 0.3293993884539357
+      },
+      {
+        "protein": "Q9UEE5",
+        "n": 3,
+        "influence": 0.0005237377679823685,
+        "pooled_r_without": 0.3283427341685908
+      },
+      {
+        "protein": "P10275",
+        "n": 1,
+        "influence": -0.0004732382748278141,
+        "pooled_r_without": 0.32933971021140096
+      },
+      {
+        "protein": "Q9P289",
+        "n": 1,
+        "influence": 0.0004525688294763075,
+        "pooled_r_without": 0.32841390310709684
+      },
+      {
+        "protein": "P42681",
+        "n": 1,
+        "influence": 0.0004124377906671861,
+        "pooled_r_without": 0.32845403414590596
+      },
+      {
+        "protein": "P29317",
+        "n": 1,
+        "influence": 0.0003740993717122332,
+        "pooled_r_without": 0.3284923725648609
+      },
+      {
+        "protein": "P35462",
+        "n": 1,
+        "influence": -0.0003680385110741424,
+        "pooled_r_without": 0.3292345104476473
+      },
+      {
+        "protein": "O95136",
+        "n": 1,
+        "influence": -0.00035509071608996745,
+        "pooled_r_without": 0.3292215626526631
+      },
+      {
+        "protein": "Q02127",
+        "n": 2,
+        "influence": -0.00033904919078575624,
+        "pooled_r_without": 0.3292055211273589
+      },
+      {
+        "protein": "P40763",
+        "n": 1,
+        "influence": 0.0003132957463334862,
+        "pooled_r_without": 0.32855317619023966
+      },
+      {
+        "protein": "P08912",
+        "n": 4,
+        "influence": 0.0002753752873018711,
+        "pooled_r_without": 0.3285910966492713
+      },
+      {
+        "protein": "P35372",
+        "n": 1,
+        "influence": 0.0002689242896932731,
+        "pooled_r_without": 0.3285975476468799
+      },
+      {
+        "protein": "Q06124",
+        "n": 1,
+        "influence": -0.00024264669262974436,
+        "pooled_r_without": 0.3291091186292029
+      },
+      {
+        "protein": "P41182",
+        "n": 36,
+        "influence": 0.0002386482786682076,
+        "pooled_r_without": 0.32862782365790494
+      },
+      {
+        "protein": "Q92630",
+        "n": 1,
+        "influence": -0.0002241115538419436,
+        "pooled_r_without": 0.3290905834904151
+      },
+      {
+        "protein": "O14976",
+        "n": 1,
+        "influence": -0.00021285256597181057,
+        "pooled_r_without": 0.32907932450254496
+      },
+      {
+        "protein": "P10721",
+        "n": 1,
+        "influence": -0.0002047371326466818,
+        "pooled_r_without": 0.3290712090692198
+      },
+      {
+        "protein": "P11229",
+        "n": 4,
+        "influence": -0.0001974572557782439,
+        "pooled_r_without": 0.3290639291923514
+      },
+      {
+        "protein": "P34972",
+        "n": 1,
+        "influence": -0.0001628042045049849,
+        "pooled_r_without": 0.32902927614107813
+      },
+      {
+        "protein": "P21802",
+        "n": 3,
+        "influence": -0.00016183367154365413,
+        "pooled_r_without": 0.3290283056081168
+      },
+      {
+        "protein": "Q6PL18",
+        "n": 1,
+        "influence": -0.00015769884029082082,
+        "pooled_r_without": 0.32902417077686397
+      },
+      {
+        "protein": "P14867",
+        "n": 4,
+        "influence": -0.0001404560394767107,
+        "pooled_r_without": 0.32900692797604986
+      },
+      {
+        "protein": "O60885",
+        "n": 3,
+        "influence": -0.00012612711632625784,
+        "pooled_r_without": 0.3289925990528994
+      },
+      {
+        "protein": "P36888",
+        "n": 2,
+        "influence": 9.546023195072806e-05,
+        "pooled_r_without": 0.3287710117046224
+      },
+      {
+        "protein": "P51617",
+        "n": 1,
+        "influence": 5.886092458107228e-05,
+        "pooled_r_without": 0.3288076110119921
+      },
+      {
+        "protein": "P03952",
+        "n": 1,
+        "influence": -5.11669241113899e-05,
+        "pooled_r_without": 0.32891763886068454
+      },
+      {
+        "protein": "P05067",
+        "n": 3,
+        "influence": 5.093990070853538e-05,
+        "pooled_r_without": 0.3288155320358646
+      },
+      {
+        "protein": "P53671",
+        "n": 2,
+        "influence": 3.6213912779636814e-05,
+        "pooled_r_without": 0.3288302580237935
+      },
+      {
+        "protein": "P29275",
+        "n": 2,
+        "influence": 2.101995081282837e-05,
+        "pooled_r_without": 0.3288454519857603
+      },
+      {
+        "protein": "O14965",
+        "n": 2,
+        "influence": -1.5475476920046027e-05,
+        "pooled_r_without": 0.3288819474134932
+      },
+      {
+        "protein": "P52333",
+        "n": 1,
+        "influence": 1.3253174500627019e-05,
+        "pooled_r_without": 0.3288532187620725
+      },
+      {
+        "protein": "P49759",
+        "n": 2,
+        "influence": -9.036547986562837e-06,
+        "pooled_r_without": 0.3288755084845597
+      },
+      {
+        "protein": "P28335",
+        "n": 1,
+        "influence": -5.871673353530227e-06,
+        "pooled_r_without": 0.3288723436099267
+      }
+    ]
+  },
+  "random_probe": {
+    "pooled_r": 0.13490323250551003,
+    "n_total": 1028,
+    "by_target": [
+      {
+        "protein": "Q92918",
+        "n": 428,
+        "influence": 0.2851951878365605,
+        "pooled_r_without": -0.15029195533105044
+      },
+      {
+        "protein": "P11309",
+        "n": 134,
+        "influence": -0.12454819795557939,
+        "pooled_r_without": 0.2594514304610894
+      },
+      {
+        "protein": "Q13546",
+        "n": 82,
+        "influence": 0.022771308282276942,
+        "pooled_r_without": 0.11213192422323309
+      },
+      {
+        "protein": "O75116",
+        "n": 24,
+        "influence": 0.012142391696393348,
+        "pooled_r_without": 0.12276084080911669
+      },
+      {
+        "protein": "P08581",
+        "n": 14,
+        "influence": 0.009493359644264177,
+        "pooled_r_without": 0.12540987286124586
+      },
+      {
+        "protein": "P10415",
+        "n": 7,
+        "influence": -0.007976980154045188,
+        "pooled_r_without": 0.14288021265955522
+      },
+      {
+        "protein": "Q07820",
+        "n": 9,
+        "influence": 0.007294421414095226,
+        "pooled_r_without": 0.1276088110914148
+      },
+      {
+        "protein": "Q13464",
+        "n": 32,
+        "influence": -0.006698927197411081,
+        "pooled_r_without": 0.14160215970292112
+      },
+      {
+        "protein": "P41182",
+        "n": 36,
+        "influence": -0.006374469049640952,
+        "pooled_r_without": 0.141277701555151
+      },
+      {
+        "protein": "P51451",
+        "n": 1,
+        "influence": -0.0062821637527565866,
+        "pooled_r_without": 0.14118539625826662
+      },
+      {
+        "protein": "Q07889",
+        "n": 24,
+        "influence": -0.0056296216230387885,
+        "pooled_r_without": 0.14053285412854882
+      },
+      {
+        "protein": "P11362",
+        "n": 4,
+        "influence": 0.005510545365460945,
+        "pooled_r_without": 0.1293926871400491
+      },
+      {
+        "protein": "P29275",
+        "n": 2,
+        "influence": -0.004058781341762546,
+        "pooled_r_without": 0.13896201384727258
+      },
+      {
+        "protein": "P01116",
+        "n": 5,
+        "influence": 0.004020372272197398,
+        "pooled_r_without": 0.13088286023331264
+      },
+      {
+        "protein": "P22455",
+        "n": 2,
+        "influence": 0.003965171723544492,
+        "pooled_r_without": 0.13093806078196554
+      },
+      {
+        "protein": "Q9Y463",
+        "n": 2,
+        "influence": -0.0035526133621101297,
+        "pooled_r_without": 0.13845584586762016
+      },
+      {
+        "protein": "Q14145",
+        "n": 2,
+        "influence": -0.0034393271595855868,
+        "pooled_r_without": 0.13834255966509562
+      },
+      {
+        "protein": "O60341",
+        "n": 6,
+        "influence": 0.003402277857019159,
+        "pooled_r_without": 0.13150095464849088
+      },
+      {
+        "protein": "Q06187",
+        "n": 14,
+        "influence": -0.0033844316997837243,
+        "pooled_r_without": 0.13828766420529376
+      },
+      {
+        "protein": "Q13627",
+        "n": 4,
+        "influence": -0.0032804803178762554,
+        "pooled_r_without": 0.1381837128233863
+      },
+      {
+        "protein": "P21802",
+        "n": 3,
+        "influence": 0.002854519840541886,
+        "pooled_r_without": 0.13204871266496815
+      },
+      {
+        "protein": "P03951",
+        "n": 17,
+        "influence": -0.00284830249261972,
+        "pooled_r_without": 0.13775153499812975
+      },
+      {
+        "protein": "P24941",
+        "n": 2,
+        "influence": 0.0026696057338322365,
+        "pooled_r_without": 0.1322336267716778
+      },
+      {
+        "protein": "Q99720",
+        "n": 4,
+        "influence": 0.002356482918793784,
+        "pooled_r_without": 0.13254674958671625
+      },
+      {
+        "protein": "O75417",
+        "n": 2,
+        "influence": 0.002304106787979404,
+        "pooled_r_without": 0.13259912571753063
+      },
+      {
+        "protein": "P42336",
+        "n": 7,
+        "influence": -0.0022755988913063796,
+        "pooled_r_without": 0.13717883139681641
+      },
+      {
+        "protein": "P29274",
+        "n": 9,
+        "influence": -0.002209795107762702,
+        "pooled_r_without": 0.13711302761327274
+      },
+      {
+        "protein": "P41595",
+        "n": 2,
+        "influence": 0.002189272328535191,
+        "pooled_r_without": 0.13271396017697484
+      },
+      {
+        "protein": "P14867",
+        "n": 4,
+        "influence": 0.0021713545223923936,
+        "pooled_r_without": 0.13273187798311764
+      },
+      {
+        "protein": "P30542",
+        "n": 9,
+        "influence": -0.0020749217438625345,
+        "pooled_r_without": 0.13697815424937257
+      },
+      {
+        "protein": "Q15059",
+        "n": 2,
+        "influence": -0.0020521181187640736,
+        "pooled_r_without": 0.1369553506242741
+      },
+      {
+        "protein": "P49674",
+        "n": 4,
+        "influence": 0.0020153476052082175,
+        "pooled_r_without": 0.13288788490030182
+      },
+      {
+        "protein": "P49841",
+        "n": 2,
+        "influence": -0.001904641195363932,
+        "pooled_r_without": 0.13680787370087397
+      },
+      {
+        "protein": "P14902",
+        "n": 2,
+        "influence": -0.001836483649806181,
+        "pooled_r_without": 0.13673971615531622
+      },
+      {
+        "protein": "P10721",
+        "n": 1,
+        "influence": 0.0017700363400143249,
+        "pooled_r_without": 0.1331331961654957
+      },
+      {
+        "protein": "P22607",
+        "n": 4,
+        "influence": 0.0017521408594852461,
+        "pooled_r_without": 0.1331510916460248
+      },
+      {
+        "protein": "P53671",
+        "n": 2,
+        "influence": 0.0017468405103011064,
+        "pooled_r_without": 0.13315639199520893
+      },
+      {
+        "protein": "P53667",
+        "n": 2,
+        "influence": 0.0017092918543339664,
+        "pooled_r_without": 0.13319394065117607
+      },
+      {
+        "protein": "P0DMS8",
+        "n": 3,
+        "influence": 0.0015147349640467211,
+        "pooled_r_without": 0.1333884975414633
+      },
+      {
+        "protein": "O95136",
+        "n": 1,
+        "influence": 0.0014431763135029085,
+        "pooled_r_without": 0.13346005619200713
+      },
+      {
+        "protein": "P42345",
+        "n": 8,
+        "influence": 0.0013793566502706134,
+        "pooled_r_without": 0.13352387585523942
+      },
+      {
+        "protein": "Q00987",
+        "n": 1,
+        "influence": -0.001267001000627016,
+        "pooled_r_without": 0.13617023350613705
+      },
+      {
+        "protein": "P43115",
+        "n": 12,
+        "influence": -0.001205514487932463,
+        "pooled_r_without": 0.1361087469934425
+      },
+      {
+        "protein": "P35367",
+        "n": 6,
+        "influence": -0.0011856406519656637,
+        "pooled_r_without": 0.1360888731574757
+      },
+      {
+        "protein": "Q06124",
+        "n": 1,
+        "influence": -0.0011481896452642804,
+        "pooled_r_without": 0.13605142215077431
+      },
+      {
+        "protein": "P08908",
+        "n": 1,
+        "influence": -0.001125446424316695,
+        "pooled_r_without": 0.13602867892982673
+      },
+      {
+        "protein": "P42681",
+        "n": 1,
+        "influence": -0.0010674060163939902,
+        "pooled_r_without": 0.13597063852190402
+      },
+      {
+        "protein": "Q15303",
+        "n": 1,
+        "influence": 0.0010620247516241743,
+        "pooled_r_without": 0.13384120775388586
+      },
+      {
+        "protein": "P29597",
+        "n": 8,
+        "influence": -0.0008463401627249734,
+        "pooled_r_without": 0.135749572668235
+      },
+      {
+        "protein": "O43353",
+        "n": 3,
+        "influence": 0.0007684187255408981,
+        "pooled_r_without": 0.13413481377996914
+      },
+      {
+        "protein": "P07900",
+        "n": 1,
+        "influence": -0.0007403689714681749,
+        "pooled_r_without": 0.1356436014769782
+      },
+      {
+        "protein": "O00444",
+        "n": 2,
+        "influence": 0.000701490920340192,
+        "pooled_r_without": 0.13420174158516984
+      },
+      {
+        "protein": "Q9NWZ3",
+        "n": 2,
+        "influence": 0.0006890033834698328,
+        "pooled_r_without": 0.1342142291220402
+      },
+      {
+        "protein": "P40763",
+        "n": 1,
+        "influence": 0.0006661623780377102,
+        "pooled_r_without": 0.13423707012747232
+      },
+      {
+        "protein": "P36888",
+        "n": 2,
+        "influence": -0.0006364831618757005,
+        "pooled_r_without": 0.13553971566738574
+      },
+      {
+        "protein": "P10275",
+        "n": 1,
+        "influence": -0.0006188220184389914,
+        "pooled_r_without": 0.13552205452394903
+      },
+      {
+        "protein": "Q9UEE5",
+        "n": 3,
+        "influence": -0.0006010712728526657,
+        "pooled_r_without": 0.1355043037783627
+      },
+      {
+        "protein": "P32245",
+        "n": 12,
+        "influence": -0.0004943479903463943,
+        "pooled_r_without": 0.13539758049585643
+      },
+      {
+        "protein": "P11229",
+        "n": 4,
+        "influence": -0.00044382922892199916,
+        "pooled_r_without": 0.13534706173443203
+      },
+      {
+        "protein": "Q92630",
+        "n": 1,
+        "influence": 0.0004430207821865817,
+        "pooled_r_without": 0.13446021172332345
+      },
+      {
+        "protein": "P52333",
+        "n": 1,
+        "influence": 0.00040872279901002506,
+        "pooled_r_without": 0.1344945097065
+      },
+      {
+        "protein": "Q9P289",
+        "n": 1,
+        "influence": 0.0003779934595974921,
+        "pooled_r_without": 0.13452523904591254
+      },
+      {
+        "protein": "P49759",
+        "n": 2,
+        "influence": 0.0003266829595024723,
+        "pooled_r_without": 0.13457654954600756
+      },
+      {
+        "protein": "Q02127",
+        "n": 2,
+        "influence": -0.0002987815780106373,
+        "pooled_r_without": 0.13520201408352067
+      },
+      {
+        "protein": "P34972",
+        "n": 1,
+        "influence": -0.00028413181838363166,
+        "pooled_r_without": 0.13518736432389367
+      },
+      {
+        "protein": "P51617",
+        "n": 1,
+        "influence": 0.00027864541277655697,
+        "pooled_r_without": 0.13462458709273348
+      },
+      {
+        "protein": "Q5BJF2",
+        "n": 5,
+        "influence": 0.00027838917574657396,
+        "pooled_r_without": 0.13462484332976346
+      },
+      {
+        "protein": "P35372",
+        "n": 1,
+        "influence": -0.00026229024601603923,
+        "pooled_r_without": 0.13516552275152607
+      },
+      {
+        "protein": "P05067",
+        "n": 3,
+        "influence": -0.0002581754114756307,
+        "pooled_r_without": 0.13516140791698567
+      },
+      {
+        "protein": "P29317",
+        "n": 1,
+        "influence": 0.00022669146445999933,
+        "pooled_r_without": 0.13467654104105004
+      },
+      {
+        "protein": "O14976",
+        "n": 1,
+        "influence": -0.0001875403784685481,
+        "pooled_r_without": 0.13509077288397858
+      },
+      {
+        "protein": "P42680",
+        "n": 1,
+        "influence": 0.0001654050596257839,
+        "pooled_r_without": 0.13473782744588425
+      },
+      {
+        "protein": "P28223",
+        "n": 1,
+        "influence": -0.0001591561253080076,
+        "pooled_r_without": 0.13506238863081804
+      },
+      {
+        "protein": "O14965",
+        "n": 2,
+        "influence": -0.00015485624003550025,
+        "pooled_r_without": 0.13505808874554553
+      },
+      {
+        "protein": "O00329",
+        "n": 2,
+        "influence": 0.00011607099249430486,
+        "pooled_r_without": 0.13478716151301573
+      },
+      {
+        "protein": "P20309",
+        "n": 4,
+        "influence": -0.00011128019441011827,
+        "pooled_r_without": 0.13501451269992015
+      },
+      {
+        "protein": "P07949",
+        "n": 1,
+        "influence": -0.0001111818001467979,
+        "pooled_r_without": 0.13501441430565683
+      },
+      {
+        "protein": "P08912",
+        "n": 4,
+        "influence": 0.00010458006872865466,
+        "pooled_r_without": 0.13479865243678138
+      },
+      {
+        "protein": "Q6PL18",
+        "n": 1,
+        "influence": -5.8312800561788336e-05,
+        "pooled_r_without": 0.13496154530607182
+      },
+      {
+        "protein": "P28335",
+        "n": 1,
+        "influence": 5.433718125491538e-05,
+        "pooled_r_without": 0.13484889532425512
+      },
+      {
+        "protein": "P51813",
+        "n": 1,
+        "influence": 5.299137281652988e-05,
+        "pooled_r_without": 0.1348502411326935
+      },
+      {
+        "protein": "Q56UN5",
+        "n": 1,
+        "influence": -4.773259847898337e-05,
+        "pooled_r_without": 0.13495096510398902
+      },
+      {
+        "protein": "P03952",
+        "n": 1,
+        "influence": -3.6078481747886526e-05,
+        "pooled_r_without": 0.13493931098725792
+      },
+      {
+        "protein": "P35462",
+        "n": 1,
+        "influence": -4.7889549628366e-06,
+        "pooled_r_without": 0.13490802146047287
+      },
+      {
+        "protein": "O60885",
+        "n": 3,
+        "influence": -2.1876963356981527e-06,
+        "pooled_r_without": 0.13490542020184573
+      }
+    ]
+  },
+  "random_transformer": {
+    "pooled_r": -0.042356910534941006,
+    "n_total": 1028,
+    "by_target": [
+      {
+        "protein": "Q92918",
+        "n": 428,
+        "influence": 0.21750561567984067,
+        "pooled_r_without": -0.2598625262147817
+      },
+      {
+        "protein": "P11309",
+        "n": 134,
+        "influence": -0.15662202759879007,
+        "pooled_r_without": 0.11426511706384906
+      },
+      {
+        "protein": "Q13546",
+        "n": 82,
+        "influence": 0.11353678099936604,
+        "pooled_r_without": -0.15589369153430704
+      },
+      {
+        "protein": "Q13464",
+        "n": 32,
+        "influence": -0.05057001665055382,
+        "pooled_r_without": 0.008213106115612814
+      },
+      {
+        "protein": "O75116",
+        "n": 24,
+        "influence": -0.03203283329392509,
+        "pooled_r_without": -0.01032407724101592
+      },
+      {
+        "protein": "P01116",
+        "n": 5,
+        "influence": 0.01744464577979299,
+        "pooled_r_without": -0.059801556314733995
+      },
+      {
+        "protein": "P10415",
+        "n": 7,
+        "influence": 0.011358027925214752,
+        "pooled_r_without": -0.05371493846015576
+      },
+      {
+        "protein": "Q5BJF2",
+        "n": 5,
+        "influence": 0.010084469060494594,
+        "pooled_r_without": -0.0524413795954356
+      },
+      {
+        "protein": "P21802",
+        "n": 3,
+        "influence": -0.008221618567324333,
+        "pooled_r_without": -0.03413529196761667
+      },
+      {
+        "protein": "P11362",
+        "n": 4,
+        "influence": -0.007107558233614926,
+        "pooled_r_without": -0.03524935230132608
+      },
+      {
+        "protein": "P22455",
+        "n": 2,
+        "influence": -0.005681494237211392,
+        "pooled_r_without": -0.036675416297729614
+      },
+      {
+        "protein": "Q06187",
+        "n": 14,
+        "influence": -0.0056328170049256415,
+        "pooled_r_without": -0.036724093530015364
+      },
+      {
+        "protein": "P08581",
+        "n": 14,
+        "influence": -0.005388699048041033,
+        "pooled_r_without": -0.03696821148689997
+      },
+      {
+        "protein": "P30542",
+        "n": 9,
+        "influence": 0.005013759693848867,
+        "pooled_r_without": -0.04737067022878987
+      },
+      {
+        "protein": "P42336",
+        "n": 7,
+        "influence": -0.004562360878483607,
+        "pooled_r_without": -0.0377945496564574
+      },
+      {
+        "protein": "P35367",
+        "n": 6,
+        "influence": -0.004283602547066188,
+        "pooled_r_without": -0.03807330798787482
+      },
+      {
+        "protein": "P05067",
+        "n": 3,
+        "influence": 0.004152676113127002,
+        "pooled_r_without": -0.04650958664806801
+      },
+      {
+        "protein": "O60341",
+        "n": 6,
+        "influence": 0.003610602361633658,
+        "pooled_r_without": -0.045967512896574664
+      },
+      {
+        "protein": "Q07820",
+        "n": 9,
+        "influence": 0.0034596503016389724,
+        "pooled_r_without": -0.04581656083657998
+      },
+      {
+        "protein": "P41182",
+        "n": 36,
+        "influence": -0.0033638179276771416,
+        "pooled_r_without": -0.038993092607263864
+      },
+      {
+        "protein": "O14965",
+        "n": 2,
+        "influence": -0.002925429858376599,
+        "pooled_r_without": -0.03943148067656441
+      },
+      {
+        "protein": "Q15059",
+        "n": 2,
+        "influence": 0.0027458651669601403,
+        "pooled_r_without": -0.045102775701901146
+      },
+      {
+        "protein": "Q99720",
+        "n": 4,
+        "influence": -0.0026876528445073516,
+        "pooled_r_without": -0.039669257690433654
+      },
+      {
+        "protein": "P29275",
+        "n": 2,
+        "influence": -0.002507332681145176,
+        "pooled_r_without": -0.03984957785379583
+      },
+      {
+        "protein": "Q00987",
+        "n": 1,
+        "influence": 0.0024150510959615804,
+        "pooled_r_without": -0.044771961630902586
+      },
+      {
+        "protein": "O00444",
+        "n": 2,
+        "influence": 0.0020332884231537077,
+        "pooled_r_without": -0.04439019895809471
+      },
+      {
+        "protein": "P08912",
+        "n": 4,
+        "influence": -0.0019542243981387764,
+        "pooled_r_without": -0.04040268613680223
+      },
+      {
+        "protein": "P41595",
+        "n": 2,
+        "influence": -0.0018982667365222416,
+        "pooled_r_without": -0.040458643798418764
+      },
+      {
+        "protein": "P51451",
+        "n": 1,
+        "influence": -0.0018771403200595893,
+        "pooled_r_without": -0.040479770214881416
+      },
+      {
+        "protein": "P42345",
+        "n": 8,
+        "influence": -0.0018743193720740792,
+        "pooled_r_without": -0.04048259116286693
+      },
+      {
+        "protein": "Q14145",
+        "n": 2,
+        "influence": 0.0017608445626130231,
+        "pooled_r_without": -0.04411775509755403
+      },
+      {
+        "protein": "P36888",
+        "n": 2,
+        "influence": -0.0017225431851993905,
+        "pooled_r_without": -0.040634367349741615
+      },
+      {
+        "protein": "P22607",
+        "n": 4,
+        "influence": 0.0015882288948641105,
+        "pooled_r_without": -0.043945139429805116
+      },
+      {
+        "protein": "P0DMS8",
+        "n": 3,
+        "influence": -0.0015167165028376756,
+        "pooled_r_without": -0.04084019403210333
+      },
+      {
+        "protein": "P20309",
+        "n": 4,
+        "influence": 0.001489996751314615,
+        "pooled_r_without": -0.04384690728625562
+      },
+      {
+        "protein": "Q9Y463",
+        "n": 2,
+        "influence": 0.0013211252121755335,
+        "pooled_r_without": -0.04367803574711654
+      },
+      {
+        "protein": "P49841",
+        "n": 2,
+        "influence": -0.0011271725918421266,
+        "pooled_r_without": -0.04122973794309888
+      },
+      {
+        "protein": "P11229",
+        "n": 4,
+        "influence": 0.0010398778888451449,
+        "pooled_r_without": -0.04339678842378615
+      },
+      {
+        "protein": "P49759",
+        "n": 2,
+        "influence": -0.0010266561476287295,
+        "pooled_r_without": -0.041330254387312276
+      },
+      {
+        "protein": "P53667",
+        "n": 2,
+        "influence": 0.0009947817831801042,
+        "pooled_r_without": -0.04335169231812111
+      },
+      {
+        "protein": "Q07889",
+        "n": 24,
+        "influence": 0.0009876160569154205,
+        "pooled_r_without": -0.043344526591856426
+      },
+      {
+        "protein": "O43353",
+        "n": 3,
+        "influence": 0.0008912402056160326,
+        "pooled_r_without": -0.04324815074055704
+      },
+      {
+        "protein": "Q9UEE5",
+        "n": 3,
+        "influence": 0.0007840204862866601,
+        "pooled_r_without": -0.043140931021227666
+      },
+      {
+        "protein": "P40763",
+        "n": 1,
+        "influence": -0.0007743001095750074,
+        "pooled_r_without": -0.041582610425366
+      },
+      {
+        "protein": "O00329",
+        "n": 2,
+        "influence": -0.000766789059045786,
+        "pooled_r_without": -0.04159012147589522
+      },
+      {
+        "protein": "Q9NWZ3",
+        "n": 2,
+        "influence": -0.0007428521560989484,
+        "pooled_r_without": -0.04161405837884206
+      },
+      {
+        "protein": "P14902",
+        "n": 2,
+        "influence": -0.0006976727014985709,
+        "pooled_r_without": -0.041659237833442435
+      },
+      {
+        "protein": "Q15303",
+        "n": 1,
+        "influence": -0.0006733212611761408,
+        "pooled_r_without": -0.041683589273764865
+      },
+      {
+        "protein": "P08908",
+        "n": 1,
+        "influence": -0.0006618178694213217,
+        "pooled_r_without": -0.041695092665519684
+      },
+      {
+        "protein": "P14867",
+        "n": 4,
+        "influence": -0.0006510822996938503,
+        "pooled_r_without": -0.041705828235247155
+      },
+      {
+        "protein": "O75417",
+        "n": 2,
+        "influence": -0.0006500344757820326,
+        "pooled_r_without": -0.04170687605915897
+      },
+      {
+        "protein": "P07900",
+        "n": 1,
+        "influence": -0.0006359495828954093,
+        "pooled_r_without": -0.041720960952045597
+      },
+      {
+        "protein": "P07949",
+        "n": 1,
+        "influence": 0.000628490100293061,
+        "pooled_r_without": -0.04298540063523407
+      },
+      {
+        "protein": "P49674",
+        "n": 4,
+        "influence": 0.0005807890098976642,
+        "pooled_r_without": -0.04293769954483867
+      },
+      {
+        "protein": "Q13627",
+        "n": 4,
+        "influence": 0.0005697657387920066,
+        "pooled_r_without": -0.04292667627373301
+      },
+      {
+        "protein": "P28223",
+        "n": 1,
+        "influence": -0.0005538668038588129,
+        "pooled_r_without": -0.04180304373108219
+      },
+      {
+        "protein": "P35462",
+        "n": 1,
+        "influence": 0.0005399639138784357,
+        "pooled_r_without": -0.04289687444881944
+      },
+      {
+        "protein": "P10721",
+        "n": 1,
+        "influence": -0.0005109254839743699,
+        "pooled_r_without": -0.041845985050966636
+      },
+      {
+        "protein": "P32245",
+        "n": 12,
+        "influence": -0.00046980954434775596,
+        "pooled_r_without": -0.04188710099059325
+      },
+      {
+        "protein": "P03951",
+        "n": 17,
+        "influence": -0.00046375157687063295,
+        "pooled_r_without": -0.04189315895807037
+      },
+      {
+        "protein": "P29274",
+        "n": 9,
+        "influence": 0.00045963578057951066,
+        "pooled_r_without": -0.042816546315520516
+      },
+      {
+        "protein": "O60885",
+        "n": 3,
+        "influence": -0.00045845691625104323,
+        "pooled_r_without": -0.04189845361868996
+      },
+      {
+        "protein": "P29317",
+        "n": 1,
+        "influence": -0.00039927508667729483,
+        "pooled_r_without": -0.04195763544826371
+      },
+      {
+        "protein": "P42680",
+        "n": 1,
+        "influence": -0.00033793590578747035,
+        "pooled_r_without": -0.042018974629153535
+      },
+      {
+        "protein": "P43115",
+        "n": 12,
+        "influence": 0.00032974355427272534,
+        "pooled_r_without": -0.04268665408921373
+      },
+      {
+        "protein": "P51813",
+        "n": 1,
+        "influence": 0.00032502568708858703,
+        "pooled_r_without": -0.04268193622202959
+      },
+      {
+        "protein": "O95136",
+        "n": 1,
+        "influence": -0.00032061750600875794,
+        "pooled_r_without": -0.04203629302893225
+      },
+      {
+        "protein": "P24941",
+        "n": 2,
+        "influence": 0.0003130683804888554,
+        "pooled_r_without": -0.04266997891542986
+      },
+      {
+        "protein": "Q9P289",
+        "n": 1,
+        "influence": -0.00031055290595850826,
+        "pooled_r_without": -0.0420463576289825
+      },
+      {
+        "protein": "P51617",
+        "n": 1,
+        "influence": 0.0002627978948197274,
+        "pooled_r_without": -0.04261970842976073
+      },
+      {
+        "protein": "Q06124",
+        "n": 1,
+        "influence": -0.00021497271755464148,
+        "pooled_r_without": -0.042141937817386364
+      },
+      {
+        "protein": "Q92630",
+        "n": 1,
+        "influence": -0.0001837294208691595,
+        "pooled_r_without": -0.042173181114071846
+      },
+      {
+        "protein": "P29597",
+        "n": 8,
+        "influence": -0.00018178346518724076,
+        "pooled_r_without": -0.042175127069753765
+      },
+      {
+        "protein": "P35372",
+        "n": 1,
+        "influence": -0.00016643247103300535,
+        "pooled_r_without": -0.042190478063908
+      },
+      {
+        "protein": "Q02127",
+        "n": 2,
+        "influence": -0.00015090732290312658,
+        "pooled_r_without": -0.04220600321203788
+      },
+      {
+        "protein": "Q6PL18",
+        "n": 1,
+        "influence": -0.00014857709377380512,
+        "pooled_r_without": -0.0422083334411672
+      },
+      {
+        "protein": "P52333",
+        "n": 1,
+        "influence": 0.00013298345367636355,
+        "pooled_r_without": -0.04248989398861737
+      },
+      {
+        "protein": "P34972",
+        "n": 1,
+        "influence": 0.00010528413764701594,
+        "pooled_r_without": -0.04246219467258802
+      },
+      {
+        "protein": "P10275",
+        "n": 1,
+        "influence": -7.635356220086348e-05,
+        "pooled_r_without": -0.04228055697274014
+      },
+      {
+        "protein": "P42681",
+        "n": 1,
+        "influence": -4.4475063360319145e-05,
+        "pooled_r_without": -0.04231243547158069
+      },
+      {
+        "protein": "Q56UN5",
+        "n": 1,
+        "influence": -4.320693203584136e-05,
+        "pooled_r_without": -0.042313703602905164
+      },
+      {
+        "protein": "P28335",
+        "n": 1,
+        "influence": -1.822822120523676e-05,
+        "pooled_r_without": -0.04233868231373577
+      },
+      {
+        "protein": "O14976",
+        "n": 1,
+        "influence": -1.2766878961373296e-05,
+        "pooled_r_without": -0.04234414365597963
+      },
+      {
+        "protein": "P03952",
+        "n": 1,
+        "influence": 1.2343551378461715e-05,
+        "pooled_r_without": -0.04236925408631947
+      },
+      {
+        "protein": "P53671",
+        "n": 2,
+        "influence": 8.102325109254904e-06,
+        "pooled_r_without": -0.04236501286005026
+      }
+    ]
+  }
+}
