@@ -62,6 +62,8 @@ These results do not establish that random initialization is a superior
 strategy; they function as a diagnostic that the evaluation pipeline is
 unstable enough for a random-init control to edge out a pretrained model
 under target-balanced aggregation on this holdout.
+The finding replicates on TDC DTI-DG (BindingDB\_Patent, 190 qualifying
+targets): random-init macro-avg $r = +0.078$ vs.\ ESM-2 $+0.029$.
 Code, data, and analyses: \href{https://github.com/swmeyer1979/dti-contamination}{\texttt{github.com/swmeyer1979/dti-contamination}}.
 \end{abstract}
 
@@ -697,6 +699,64 @@ The Q92918-dominated holdout is therefore not a property of all
 ChEMBL-derived test sets; it reflects the underlying bioactivity-data
 distribution for post-2022 novel-chemistry compounds specifically.
 
+\subsection{External validation: TDC DTI-DG (BindingDB\_Patent)}
+\label{sec:tdc}
+
+To test whether the concentration artifact and metric instability replicate
+on an independent benchmark, we evaluate all four models on the TDC
+DTI-DG domain-generalisation split \citep{huang2021moltrans} using
+BindingDB\_Patent data (temporal split: trained on 2013--2018 patents,
+tested on 2019--2021 patents; 48{,}992 test pairs, 248 unique targets,
+34{,}157 unique compounds; 151 of 248 targets do not appear in
+Davis/KIBA training data).
+
+\paragraph{Concentration.}
+The TDC test set shows the same long-tailed concentration pattern:
+top-5 targets account for 24.8\% of pairs and top-10 for 35.1\%.
+This is less extreme than our primary holdout (top-5 = 69.3\%) but
+demonstrates the pattern is intrinsic to DTI bioactivity data, not
+an artefact of our ChEMBL34 construction.
+
+\paragraph{Model performance.}
+With $n_\text{min} = 10$, 190 of 248 targets qualify for macro-averaged $r$.
+
+\begin{table}[h]
+\centering
+\caption{TDC DTI-DG (BindingDB\_Patent) test set: pooled and macro-averaged
+Pearson $r$ ($n_\text{min} = 10$; 190 qualifying targets).
+All models are near-zero, consistent with TDC's own published DTI-DG
+baselines.}
+\label{tab:tdc}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Pooled $r$} & \textbf{Macro-avg $r$} \\
+\midrule
+ESM-2 + ChemBERTa    & $+0.031$ & $+0.029$ \\
+DeepDTA              & $+0.070$ & $+0.077$ \\
+Random-proj.\ probe  & $+0.012$ & $-0.001$ \\
+\textbf{Random-init transf.} & $\mathbf{+0.092}$ & $\mathbf{+0.078}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three observations.
+First, the random-init transformer achieves the highest macro-avg $r$ on
+TDC DTI-DG ($+0.078$), exceeding the pretrained ESM-2 probe ($+0.029$),
+consistent with the primary holdout finding.
+Second, DeepDTA and the random-init transformer are nearly tied on macro-avg
+($+0.077$ vs.\ $+0.078$); the full rank ordering from the primary holdout does
+not replicate exactly.
+Third, all four models score below $0.10$ on macro-avg $r$---consistent with
+TDC's published baselines for this domain-generalisation split, confirming that
+genuine OOD performance is near-zero for all approaches, pretrained or not.
+
+This external replication provides the following support for the paper's claims:
+(i)~target-concentration artifacts are present in an independent bioactivity
+dataset with a temporal domain split; and (ii)~pretrained ESM-2 + ChemBERTa
+does not outperform a randomly-initialised transformer under macro-averaged
+evaluation on this larger, more diverse test set.
+
 \subsection{DiD analysis of contamination is unidentifiable}
 
 For completeness we also report a difference-in-differences estimator for the
@@ -836,8 +896,10 @@ The diagnostic value of the rank reversal (8 of 12 targets, distributed
 across protein families) does not depend on formal significance, but formal
 superiority claims should be treated as indicative rather than conclusive.
 
-\paragraph{Single dataset and multiplicity.}
-Findings are demonstrated on Davis + KIBA + one ChEMBL34 holdout.
+\paragraph{External replication and multiplicity.}
+The concentration artifact and random-init-wins finding replicate on TDC
+DTI-DG (BindingDB\_Patent, 190 qualifying targets, Section~\ref{sec:tdc}).
+The full rank ordering does not replicate exactly across both datasets.
 Table~\ref{tab:pairwise-delta} and Table~\ref{tab:cutoff-sensitivity} scan
 multiple contrasts and cutoffs without multiplicity correction; a strict
 Bonferroni adjustment would widen the effective threshold.
