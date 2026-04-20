@@ -39,7 +39,8 @@ Evaluation Artifacts in Drug-Target Interaction Benchmarks}}
 On a novel-chemistry holdout of 1{,}028 drug-target pairs gated at Tanimoto $<$ 0.4
 versus ChEMBL27, a randomly-initialised ESM-2 + ChemBERTa transformer achieves
 higher macro-averaged per-target Pearson $r$ than its pretrained counterpart
-(pairwise $\Delta = +0.14$, 95\% cluster-bootstrap CI $[+0.004, +0.28]$, $P = 0.979$).
+(pairwise $\Delta = +0.14$, 95\% target-bootstrap CI $[+0.004, +0.28]$;
+$\Pr[\Delta > 0 \mid \text{bootstrap}] = 0.979$).
 This paradoxical result is the signature of three evaluation artifacts that
 compound on drug-target interaction (DTI) benchmarks.
 First, a single kinase (Q92918/MAP3K1) contributes 53\% of the pairs in a
@@ -96,7 +97,10 @@ target, minimum 10 pairs per target), the ranking inverts.
 The randomly-initialised transformer achieves macro-avg $r = +0.103$ across 12
 qualifying targets; the pretrained probe achieves $-0.035$.
 A pairwise target-level bootstrap puts this $\Delta = +0.14$ difference at 95\%
-CI $[+0.004, +0.28]$, $P(\text{random-init} > \text{pretrained}) = 0.979$.
+CI $[+0.004, +0.28]$, with $\Pr[\Delta > 0 \mid \text{bootstrap}] = 0.979$
+(fraction of 10{,}000 paired target-resample iterations with positive
+$\Delta$; this is a one-sided bootstrap superiority probability, not a
+frequentist $p$-value).
 The result is preserved across minimum-$n$ cutoffs in $\{5, 10, 20, 30\}$ and
 under leave-one-target-out.
 
@@ -106,6 +110,11 @@ It is a claim that \emph{the evaluation is broken in a specific, diagnosable way
 and that the pretrained model's apparent advantage under pooled $r$ is an
 artifact of single-target dominance compounded by CIs that assume pair
 independence that the data structure does not support.
+The random-init-wins phenomenon mirrors findings in genomics
+\citep{vishniakov2024genomic} and other specialised domains
+\citep{xu2025specialized}; the contribution here is the causal decomposition
+specific to DTI: metric choice and target concentration, not representation
+quality, explain the effect.
 
 \paragraph{Contributions.}
 \begin{enumerate}
@@ -125,12 +134,15 @@ independence that the data structure does not support.
 \end{enumerate}
 
 We do not release a new benchmark and do not claim to solve DTI evaluation.
-We claim that the standard pooled-$r$-plus-pair-bootstrap pipeline systematically
-misreports model performance on DTI benchmarks in the direction of
-\emph{over-confident} claims about pretrained-model competence, and that two simple
-fixes---macro-averaged per-target $r$ with a minimum-$n$ cutoff, and two-way
-cluster bootstrap CIs---recover qualitatively different conclusions on the same
-data.
+We claim that the standard pooled-$r$-plus-pair-bootstrap pipeline
+misreports model performance on Davis-family benchmarks under DeepDTA-style
+cold-drug splits, in the direction of \emph{over-confident} claims about
+pretrained-model competence, and that two simple fixes---macro-averaged
+per-target $r$ with a minimum-$n$ cutoff, and two-way cluster bootstrap
+CIs---recover qualitatively different conclusions on the same data.
+The KIBA in-distribution test set (balanced, 229 targets) does not exhibit
+the same concentration pathology; the artifacts we describe are specific to
+novel-chemistry evaluation with long-tailed target distributions.
 
 \section{Related Work}
 
@@ -140,9 +152,29 @@ the canonical DTI benchmarks since DeepDTA \citep{ozturk2018deepdta}
 standardised their train/test splits.
 Both datasets consist almost entirely of human kinases, with dense coverage in
 pretraining corpora.
+\citet{pahikkala2015toward} introduced four cross-validation settings
+(pair/new-drug/new-target/new-both) for Davis and KIBA, demonstrating that
+pair-level random splits are optimistic because target identity dominates
+predictive signal.
 This structural uniformity has been critiqued as a generalisation limitation
-\citep{wallach2018most,bender2022evaluation}, but its consequences for
-pointwise-metric reporting have not, to our knowledge, been quantified.
+\citep{wallach2018most,bender2022evaluation}, but the consequence for
+\emph{pointwise-metric reporting on a given holdout}---that one target can
+arithmetically dominate the aggregate score---has not, to our knowledge,
+been quantified explicitly.
+
+\paragraph{Pretrained models vs.\ random initialisation.}
+The failure of pretrained representations to beat task-specific baselines
+has been documented across domains.
+\citet{vishniakov2024genomic} show that randomly-initialised models match or
+outperform pretrained genomic foundation models on Nucleotide Transformer
+Benchmark, GUE, and Genomics Benchmark.
+\citet{xu2025specialized} extend this finding across genomics, satellite
+imaging, and time-series tasks, arguing that specialised foundation models
+struggle to beat supervised baselines in their target domains.
+Our random-init result in DTI is a specific instance of this pattern;
+the contribution is the causal diagnosis: under target-balanced aggregation,
+the apparent pretrained advantage is attributable to
+single-target dominance rather than genuine representational superiority.
 
 \paragraph{Evaluation artifacts in ML benchmarks.}
 Benchmark concentration and dependence structure have received attention in
@@ -166,13 +198,17 @@ Cluster-robust variance estimation is standard in econometrics and biostatistics
 The two-way (multi-way) cluster bootstrap generalises pair-level resampling to
 account for two independent clustering dimensions
 \citep{cameron2011robust,efron1979bootstrap}.
-For situations with few clusters, the wild cluster bootstrap
-\citep{mackinnon2017wild} further improves coverage.
+For situations with few clusters, wild cluster bootstrap
+\citep{mackinnon2017wild} improves coverage; recent jackknife alternatives
+(CV3/CV3J) are more robust to heterogeneous cluster sizes
+\citep{mackinnon2023fast}.
 Protein interaction benchmarks have recently been audited for similar leakage
 patterns \citep{bushuiev2024revealing}.
-This paper's contribution is applying the standard cluster-robust tooling to
-DTI benchmarks specifically, and documenting that it changes the empirical
-conclusions.
+This paper's contribution is applying cluster-robust tooling to DTI benchmarks
+specifically and documenting that it changes the empirical conclusions;
+we use the CGM two-way cluster bootstrap \citep{cameron2011robust} and
+acknowledge that CV3J or wild bootstrap would improve coverage further
+(Section~\ref{sec:limitations}).
 
 \paragraph{Pretrained models for DTI.}
 Frozen pretrained encoders (ESM-2 \citep{lin2023evolutionary}, ChemBERTa
@@ -264,6 +300,14 @@ Same MLP head and training procedure as the pretrained probe.
 
 This ablation isolates the contribution of pretrained weights from the
 transformer's architectural inductive bias (attention, positional encoding).
+Both pretrained and random-init variants use the same MLP head, learning rate
+($10^{-3}$), batch size, and training duration.
+We acknowledge that pretrained models may benefit from a lower fine-tuning
+learning rate; however, both variants here train the full model
+(encoders $+$ MLP head) from the same starting procedure, so the comparison
+is hyperparameter-symmetric in that sense.
+A lower-LR fine-tuning regime for the pretrained variant remains a useful
+follow-up ablation.
 
 \subsection{Metrics and inference}
 \label{sec:methods-inference}
@@ -485,6 +529,46 @@ chemistry better than the same transformer with pretrained weights, when
 performance is measured equally across targets.
 We discuss three plausible explanations in Section~\ref{sec:discussion}.
 
+\paragraph{Per-target decomposition.}
+To verify this advantage is distributed rather than driven by one or two
+outlier targets, Table~\ref{tab:per-target-delta} shows per-target
+$\Delta r = r_\text{random-init} - r_\text{ESM-2}$ for all 12 qualifying targets.
+The random-init transformer is better on 8 of 12 targets ($\Delta > 0$;
+targets P08581, Q13546, O75116, Q07889, Q92918, P32245, P41182, Q13464).
+The mean $\Delta = +0.137$ closely matches the bootstrap point estimate ($+0.138$).
+The largest per-target $\Delta$ values occur on smaller targets (n=14--82),
+while Q92918 (n=428) contributes $\Delta = +0.194$ without dominating the
+average---the opposite structure from the DeepDTA Q92918 artifact.
+
+\begin{table}[h]
+\centering
+\caption{Per-target $\Delta r = r_\text{random-init} - r_\text{ESM-2}$ for
+12 qualifying holdout targets ($n \geq 10$). Positive $\Delta$: random-init
+is better.}
+\label{tab:per-target-delta}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Target} & \textbf{$n$} & \textbf{$r_\text{rand}$} & \textbf{$r_\text{ESM}$} & \textbf{$\Delta r$} \\
+\midrule
+P08581  & 14  & $+0.564$ & $+0.018$ & $\mathbf{+0.546}$ \\
+Q13546  & 82  & $+0.344$ & $-0.125$ & $\mathbf{+0.469}$ \\
+O75116  & 24  & $+0.328$ & $-0.081$ & $\mathbf{+0.410}$ \\
+Q07889  & 24  & $+0.110$ & $-0.109$ & $\mathbf{+0.219}$ \\
+Q92918  & 428 & $+0.066$ & $-0.128$ & $\mathbf{+0.194}$ \\
+P32245  & 12  & $+0.332$ & $+0.156$ & $\mathbf{+0.177}$ \\
+P41182  & 36  & $+0.361$ & $+0.212$ & $\mathbf{+0.149}$ \\
+Q13464  & 32  & $+0.254$ & $+0.203$ & $\mathbf{+0.051}$ \\
+P11309  & 134 & $-0.127$ & $-0.051$ & $-0.077$ \\
+P43115  & 12  & $+0.077$ & $+0.184$ & $-0.107$ \\
+Q06187  & 14  & $-0.710$ & $-0.573$ & $-0.137$ \\
+P03951  & 17  & $-0.369$ & $-0.126$ & $-0.243$ \\
+\midrule
+Mean    &     &          &          & $\mathbf{+0.137}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Sensitivity analysis}
 \label{sec:sensitivity}
 
@@ -542,6 +626,47 @@ minimum-$n$ cutoff. Random-init transformer is the highest-ranked baseline at
 every cutoff on both metrics.}
 \label{fig:sensitivity}
 \end{figure}
+
+\subsection{KIBA replication: concentration is specific to the holdout}
+\label{sec:kiba-replication}
+
+As a partial replication check, we apply the same macro-vs-pooled analysis
+to the standard KIBA test set (23{,}651 pairs, 229 targets, random pair split
+following DeepDTA).
+The KIBA test set is not long-tailed: the top-5 targets contribute only 5.4\%
+of pairs (vs.\ 69.3\% in our novel-chemistry holdout), and no single target
+exceeds 1.3\%.
+
+\begin{table}[h]
+\centering
+\caption{KIBA test set: pooled vs.\ macro-averaged Pearson $r$
+($n_\text{min} = 10$; 196 qualifying targets of 229).
+No rank inversion is expected or observed---the test set is balanced and
+in-distribution for all models.}
+\label{tab:kiba-replication}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Pooled $r$} & \textbf{Macro-avg $r$} \\
+\midrule
+ESM-2 + ChemBERTa        & $+0.797$ & $+0.696$ \\
+DeepDTA                  & $+0.870$ & $+0.805$ \\
+Random-proj.\ probe      & $+0.813$ & $+0.738$ \\
+\textbf{Random-init transf.} & $+0.524$ & $+0.347$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two observations.
+First, on KIBA, the random-init transformer is the \emph{worst} model under
+both metrics---the rank reversal seen on novel chemistry is absent.
+This is expected: KIBA is in-distribution for all trained models, so pretrained
+representations contribute genuine signal.
+Second, the macro-avg $r$ ordering (DeepDTA $>$ Random-proj.\ $>$ ESM-2 $>$ Random-init)
+is stable---pooled and macro-avg agree because the test set is balanced.
+The Q92918-dominated holdout is therefore not a property of all
+ChEMBL-derived test sets; it reflects the underlying bioactivity-data
+distribution for post-2022 novel-chemistry compounds specifically.
 
 \subsection{DiD analysis of contamination is unidentifiable}
 
@@ -665,11 +790,21 @@ re-running any baselines or redesigning any benchmarks.
 
 \section{Limitations}
 
-\paragraph{Small number of qualifying targets.}
+\paragraph{Small number of qualifying targets and bootstrap coverage.}
 At $n_\text{min} = 10$ the holdout yields only 12 qualifying targets.
-Target-level bootstrap CIs are correspondingly wide, and the individual-model
-macro-avg CIs all contain zero.
-The defensible claim is the pairwise contrast, not the individual model level.
+$K = 12$ is well inside the ``danger zone'' ($K < 30$) identified by
+\citet{cameron2015practitioner} for target-level bootstrap inference.
+The raw-percentile bootstrap on Pearson $r$ without Fisher-$z$ transformation
+is known to under-cover at small $K$ \citep{mackinnon2023fast}; under a
+realistic 85--88\% effective coverage, the reported CI $[+0.004, +0.276]$
+for the pairwise contrast could extend below zero.
+Fisher-$z$ transformation with BCa or studentised bootstrap-$t$ intervals
+\citep{mackinnon2023fast} would provide more reliable coverage;
+we report the percentile bootstrap as the primary procedure and note this
+as a limitation.
+The diagnostic value of the rank reversal (8 of 12 targets, distributed
+across protein families) does not depend on formal significance, but formal
+superiority claims should be treated as indicative rather than conclusive.
 
 \paragraph{Single dataset and multiplicity.}
 Findings are demonstrated on Davis + KIBA + one ChEMBL34 holdout.
